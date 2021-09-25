@@ -1,5 +1,6 @@
 QT += quick
 QT += quickcontrols2
+QT += serialport
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -15,7 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         defaultsettings.cpp \
-        main.cpp
+        main.cpp \
+        serialport.cpp
 
 RESOURCES += qml.qrc
 
@@ -31,4 +33,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    defaultsettings.h
+    defaultsettings.h \
+    serialport.h

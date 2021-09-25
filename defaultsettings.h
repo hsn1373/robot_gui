@@ -2,6 +2,7 @@
 #define DEFAULTSETTINGS_H
 
 #include <QObject>
+#include <QDebug>
 
 class defaultsettings : public QObject
 {
@@ -9,6 +10,7 @@ class defaultsettings : public QObject
     //Q_PROPERTY(QString darkMode READ getDarkMode WRITE setDarkMode)
 public:
     explicit defaultsettings(QObject *parent = nullptr);
+
 
 //    QString getDarkMode();
 //    void setDarkMode(QString value);

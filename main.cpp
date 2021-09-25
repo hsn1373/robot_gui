@@ -3,6 +3,7 @@
 #include <QQuickStyle>
 #include <QSettings>
 #include "defaultsettings.h"
+#include "serialport.h"
 
 void first_run()
 {
@@ -27,6 +28,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQuickStyle::setStyle("Material");
     qmlRegisterType<defaultsettings>("DefaultSettings", 1, 0, "DefaultSettings");
+    qmlRegisterType<serialport>("SerialPort", 1, 0, "SerialPort");
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
