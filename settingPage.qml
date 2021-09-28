@@ -16,13 +16,26 @@ Item {
 
     SerialPort {
         id: serialPort
+
+        onPortOpenSignal:
+        {
+            lbl_status.text = "port is opened !";
+        }
+        onPortNotOpenSignal:
+        {
+            lbl_status.text = "port open error !";
+        }
+        onDataSent:
+        {
+            lbl_status.text = "G-code is sent";
+        }
     }
 
     Grid
     {
         width: parent.width
         height: parent.height
-        rows: 4
+        rows: 6
 
         Label
         {
@@ -58,6 +71,37 @@ Item {
             onActivated: {
                 this.displayText = this.currentText
             }
+        }
+
+        Button
+        {
+            id: btnOpenPort
+            width: parent.width * 1/5
+            height: parent.height * 1/8
+            text: "Open Port"
+            highlighted: UIStyle.darkTheme
+            background:  Rectangle {
+                radius: 9
+                color: UIStyle.themeBlue
+            }
+            onClicked:
+            {
+                serialPort.open_port()
+            }
+            onHoveredChanged: btnOpenPort.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+        }
+
+        Label
+        {
+            id: lbl_status
+            width: parent.width
+            height: parent.height * 1/8
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            text: "<b> Port Is ... </b>"
+            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+            font.family: UIStyle.fontName
+            //font.pixelSize: parent.height - 2
         }
 
         Button

@@ -47,8 +47,12 @@ public:
 
 signals:
     void serialPortsListChanged();
+    void portOpenSignal();
+    void portNotOpenSignal();
+    void dataSent();
 
 public slots:
+    void open_port();
     void close_open_door(bool val);
     bool writeDate(QString val);
 
