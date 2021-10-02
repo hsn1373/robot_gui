@@ -61,7 +61,10 @@ QtObject {
     property bool darkTheme: true
     //property int d: 0
     //property int l: 1
-    property int fontSize: 10
+    property int fontSize_VeryBig: 30
+    property int fontSize_Big: 22
+    property int fontSize_Medium: 20
+    property int fontSize_Small: 22
 
     // Color Scheme
     // Green
@@ -105,6 +108,8 @@ QtObject {
     readonly property color columnBackground: darkTheme? "#363943" : '#F8F8F8'
     readonly property color borderGrey: darkTheme ? '#363943' : '#E3E1E1'
     readonly property color borderGrey2: darkTheme ? '#E3E1E1' : '#363943'
+    readonly property color portSatusLabelColorClosed: darkTheme ? '#e6173d' : '#e6173d'
+    readonly property color portSatusLabelColorOpened: darkTheme ? '#1fd100' : '#1fd100'
 
     readonly property color comboBackground: Qt.rgba(227,225,225,0.5)
     readonly property color channelRed: Qt.rgba(46,125,50,0.3)

@@ -2,6 +2,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.2
 import QtQuick.Window 2.2
+import SerialPort 1.0
 import "./Style"
 import Qt.labs.settings 1.0
 
@@ -12,6 +13,7 @@ Window {
     height: 480
     title: qsTr("ROBOT GUI")
     visibility: "Maximized"
+
     Rectangle
     {
         id: background
@@ -30,6 +32,29 @@ Window {
         value: settings.darkTheme
     }
 
+    SerialPort {
+        id: serialPort
+
+        onPortOpenSignal:
+        {
+            lbl_status.text = "<b> Port Is Opened. </b>";
+            lbl_status.color = UIStyle.portSatusLabelColorOpened
+            btnOpenPort.enabled = false
+            btnClosePort.enabled = true
+        }
+        onPortNotOpenSignal:
+        {
+            lbl_status.text = "<b> Error In Openning Port ! Port Is Closed </b>";
+            lbl_status.color = UIStyle.portSatusLabelColorClosed
+            btnOpenPort.enabled = true
+            btnClosePort.enabled = false
+        }
+        onDataSent:
+        {
+            lbl_status.text = "<b> G-code is sent ! </b>";
+        }
+    }
+
 
     //*********************************************************
     //*********************************************************
@@ -41,7 +66,7 @@ Window {
         width: parent.width
         height: parent.height
         padding: 5
-        spacing: 3
+        spacing: 6
         rows: 4
 
         Rectangle
@@ -53,17 +78,18 @@ Window {
 
         Row
         {
-            width: parent.width
+            width: parent.width - 6
             height: parent.height * 1/5
-            spacing: 3
+            spacing: 6
 
             Button
             {
                 id: btnSetMovesPage
-                width: parent.width * 1/3
+                width: parent.width * 1/3 - 6
                 height: parent.height
                 text: "Set Moves"
                 highlighted: UIStyle.darkTheme
+                font.pixelSize: UIStyle.fontSize_Big
                 //icon.name: "edit-cut"
                 //icon.source: "images/cut.png"
                 background:  Rectangle {
@@ -80,10 +106,11 @@ Window {
             Button
             {
                 id: btnSettingsPage
-                width: parent.width * 1/3
+                width: parent.width * 1/3 - 6
                 height: parent.height
                 text: "Settings"
                 highlighted: UIStyle.darkTheme
+                font.pixelSize: UIStyle.fontSize_Big
                 background:  Rectangle {
                     color: UIStyle.themeBlue
                 }
@@ -97,11 +124,110 @@ Window {
 
             Button
             {
+                id: btnTemperaturePage
+                width: parent.width * 1/3 - 6
+                height: parent.height
+                text: "Temperature"
+                highlighted: UIStyle.darkTheme
+                font.pixelSize: UIStyle.fontSize_Big
+                background:  Rectangle {
+                    color: UIStyle.themeBlue
+                }
+                onClicked:
+                {
+                    main_grid.visible=false
+                    temperature_grid.visible=true
+                }
+                onHoveredChanged: btnTemperaturePage.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+            }
+
+
+        }
+
+        Row
+        {
+            width: parent.width - 6
+            height: parent.height * 1/5
+            spacing: 6
+
+            Button
+            {
+                id: btnWashReaderPage
+                width: parent.width * 1/3 - 6
+                height: parent.height
+                text: "Wash Reader"
+                highlighted: UIStyle.darkTheme
+                font.pixelSize: UIStyle.fontSize_Big
+                background:  Rectangle {
+                    color: UIStyle.themeBlue
+                }
+                onClicked:
+                {
+                    main_grid.visible=false
+                    washReader_grid.visible=true
+                }
+                onHoveredChanged: btnWashReaderPage.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+            }
+
+            Button
+            {
+                id: btnOpenCloseDoor
+                width: parent.width * 1/3 - 6
+                height: parent.height
+                text: "Open/Close Door"
+                highlighted: UIStyle.darkTheme
+                font.pixelSize: UIStyle.fontSize_Big
+                background:  Rectangle {
+                    color: UIStyle.themeBlue
+                }
+                onClicked:
+                {
+
+                }
+                onHoveredChanged: btnOpenCloseDoor.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+            }
+
+            Button
+            {
+                id: btnInOutWorkSpace
+                width: parent.width * 1/3 - 6
+                height: parent.height
+                text: "In/Out Workspace"
+                highlighted: UIStyle.darkTheme
+                font.pixelSize: UIStyle.fontSize_Big
+                background:  Rectangle {
+                    color: UIStyle.themeBlue
+                }
+                onClicked:
+                {
+
+                }
+                onHoveredChanged: btnInOutWorkSpace.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+            }
+
+        }
+
+        Row
+        {
+            width: parent.width - 6
+            height: parent.height * 1/5
+            spacing: 6
+
+            Rectangle
+            {
+                width: parent.width * 1/3 - 6
+                height: parent.height
+                color: "transparent"
+            }
+
+            Button
+            {
                 id: btnExit
-                width: parent.width * 1/3
+                width: parent.width * 1/3 - 6
                 height: parent.height
                 text: "exit"
                 highlighted: UIStyle.darkTheme
+                font.pixelSize: UIStyle.fontSize_Big
                 background:  Rectangle {
                     color: UIStyle.themeBlue
                 }
@@ -112,6 +238,12 @@ Window {
                 onHoveredChanged: btnExit.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
             }
 
+            Rectangle
+            {
+                width: parent.width * 1/3 - 6
+                height: parent.height
+                color: "transparent"
+            }
         }
 
 
@@ -426,12 +558,12 @@ Window {
                 {
                     width: parent.width
                     height: parent.height
-                    rows: 5
+                    rows: 7
 
                     Label
                     {
                         width: parent.width
-                        height: parent.height * 1/5
+                        height: parent.height * 1/7
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         text: "<b> Source </b>"
@@ -442,14 +574,76 @@ Window {
                     Rectangle
                     {
                         width: parent.width
-                        height: parent.height * 1/5
+                        height: parent.height * 1/8
+                        color: "transparent"
+                    }
+
+
+                    Row
+                    {
+                        width: parent.width
+                        height: parent.height * 1/7
+
+                        Label
+                        {
+                            width: parent.width * 2/5
+                            height: parent.height
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            text: "<b> Source Type </b>"
+                            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                            font.family: UIStyle.fontName
+                        }
+
+                        ComboBox
+                        {
+                            id: cmb_addNewMove_Source_sourceType
+                            width: parent.width * 3/5
+                            height: parent.height
+                            Material.accent: Material.primary
+                            Material.theme: Material.Light
+                            font.pointSize:UIStyle.fontSize
+                            font.family:UIStyle.fontName
+                            background: Rectangle{
+                                width: parent.width
+                                height: parent.height
+                                color: UIStyle.comboBackground
+                                border.width: 0.5
+                                border.color: UIStyle.borderGrey
+                            }
+
+                            displayText: _select_device_str
+                            model: ["Source-1","Source-2"]
+                            onActivated: {
+                                this.displayText = this.currentText
+                                if(cmb_addNewMove_Source_sourceType.currentIndex==1)
+                                {
+                                    sourceType1_row1.visible=false
+                                    sourceType1_row2.visible=false
+                                    sourceType2_row1.visible=true
+                                }
+                                else
+                                {
+                                    sourceType1_row1.visible=true
+                                    sourceType1_row2.visible=true
+                                    sourceType2_row1.visible=false
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle
+                    {
+                        width: parent.width
+                        height: parent.height * 1/8
                         color: "transparent"
                     }
 
                     Row
                     {
+                        id: sourceType1_row1
                         width: parent.width
-                        height: parent.height * 1/5
+                        height: parent.height * 1/7
 
                         Label
                         {
@@ -514,14 +708,15 @@ Window {
                     Rectangle
                     {
                         width: parent.width
-                        height: parent.height * 1/5
+                        height: parent.height * 1/8
                         color: "transparent"
                     }
 
                     Row
                     {
+                        id: sourceType1_row2
                         width: parent.width
-                        height: parent.height * 1/5
+                        height: parent.height * 1/7
 
                         Label
                         {
@@ -541,6 +736,49 @@ Window {
                             from:1
                             to:12
                             value: 2
+                        }
+                    }
+
+                    Row
+                    {
+                        id: sourceType2_row1
+                        width: parent.width
+                        height: parent.height * 1/7
+                        visible: false
+
+                        Label
+                        {
+                            width: parent.width * 2/5
+                            height: parent.height
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            text: "<b> Source Number </b>"
+                            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                            font.family: UIStyle.fontName
+                        }
+
+                        ComboBox
+                        {
+                            id: cmb_addNewMove_Source2_source_number
+                            width: parent.width * 3/5
+                            height: parent.height
+                            Material.accent: Material.primary
+                            Material.theme: Material.Light
+                            font.pointSize:UIStyle.fontSize
+                            font.family:UIStyle.fontName
+                            background: Rectangle{
+                                width: parent.width
+                                height: parent.height
+                                color: UIStyle.comboBackground
+                                border.width: 0.5
+                                border.color: UIStyle.borderGrey
+                            }
+
+                            displayText: _select_device_str
+                            model: ["1","2","3","4","5","6","7","8","9","10","11","12","13"]
+                            onActivated: {
+                                this.displayText = this.currentText
+                            }
                         }
                     }
 
@@ -810,79 +1048,108 @@ Window {
             onHoveredChanged: btnSettingsBack.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
         }
 
-        Button
+        Rectangle
         {
-            id: btnChangeTheme
-            width: parent.width * 1/5
-            height: parent.height * 1/10
-            text: "Change Theme"
-            highlighted: UIStyle.darkTheme
-            background:  Rectangle {
-                radius: 9
-                color: UIStyle.themeBlue
-            }
-            onClicked:
+            width: parent.width
+            height: parent.height * 1/7
+            color: "transparent"
+        }
+
+        Row
+        {
+            width: parent.width
+            height: parent.height * 1/9
+            spacing: 5
+
+            Rectangle
             {
-                UIStyle.darkTheme = !UIStyle.darkTheme
-                btnHome.background.color = UIStyle.themeBlue
-                btnSetting.background.color = UIStyle.themeBlue
-                btnCloseOpenDoor.background.color = UIStyle.themeBlue
-            }
-            onHoveredChanged: btnChangeTheme.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
-        }
-
-        Label
-        {
-            width: parent.width
-            height: parent.height * 1/8
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            text: "<b> Setting Page </b>"
-            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
-            font.family: UIStyle.fontName
-            //font.pixelSize: parent.height - 2
-        }
-
-        ComboBox
-        {
-            id: deviceComboBox
-            width: parent.width
-            height: parent.height * 1/8
-            Material.accent: Material.primary
-            Material.theme: Material.Light
-            font.pointSize:UIStyle.fontSize
-            font.family:UIStyle.fontName
-            background: Rectangle{
-                width: parent.width
+                width: parent.width * 1/7
                 height: parent.height
-                color: UIStyle.comboBackground
-                border.width: 0.5
-                border.color: UIStyle.borderGrey
+                color: "transparent"
             }
 
-            displayText: _select_device_str
-            model: serialPort.serial_ports_list
-            onActivated: {
-                this.displayText = this.currentText
+            Label
+            {
+                width: parent.width * 1/7
+                height: parent.height
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: "<b> Serial Port: </b>"
+                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                font.family: UIStyle.fontName
+                font.pixelSize: UIStyle.fontSize_Big
             }
+
+            TextField
+            {
+                id: txt_serialport_name
+                width: parent.width * 1/7
+                height: parent.height
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: "ttyUSB0"
+                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                font.family: UIStyle.fontName
+            }
+
+            Rectangle
+            {
+                width: parent.width * 1/8
+                height: parent.height
+                color: "transparent"
+            }
+
+            Button
+            {
+                id: btnOpenPort
+                width: parent.width * 1/7
+                height: parent.height
+                text: "Open Port"
+                highlighted: UIStyle.darkTheme
+                background:  Rectangle {
+                    radius: 9
+                    color: UIStyle.themeBlue
+                }
+                onClicked:
+                {
+                    serialPort.open_port()
+                }
+                onHoveredChanged: btnOpenPort.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+            }
+
+            Button
+            {
+                id: btnClosePort
+                width: parent.width * 1/7
+                height: parent.height
+                enabled: false
+                text: "Close Port"
+                highlighted: UIStyle.darkTheme
+                background:  Rectangle {
+                    radius: 9
+                    color: UIStyle.themeBlue
+                }
+                onClicked:
+                {
+                    serialPort.open_port()
+                }
+                onHoveredChanged: btnClosePort.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+            }
+
+            Rectangle
+            {
+                width: parent.width * 1/8
+                height: parent.height
+                color: "transparent"
+            }
+
         }
 
-        Button
+        Rectangle
         {
-            id: btnOpenPort
-            width: parent.width * 1/5
+            width: parent.width
             height: parent.height * 1/8
-            text: "Open Port"
-            highlighted: UIStyle.darkTheme
-            background:  Rectangle {
-                radius: 9
-                color: UIStyle.themeBlue
-            }
-            onClicked:
-            {
-                serialPort.open_port()
-            }
-            onHoveredChanged: btnOpenPort.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+            color: "transparent"
         }
 
         Label
@@ -892,18 +1159,140 @@ Window {
             height: parent.height * 1/8
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            text: "<b> Port Is ... </b>"
-            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+            text: "<b> Port Is Closed </b>"
+            //Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+            color: UIStyle.portSatusLabelColorClosed
             font.family: UIStyle.fontName
-            //font.pixelSize: parent.height - 2
+            font.pixelSize: UIStyle.fontSize_Big
         }
+
+        Rectangle
+        {
+            width: parent.width
+            height: parent.height * 1/8
+            color: "transparent"
+        }
+
+        Row
+        {
+            width: parent.width
+            height: parent.height * 1/9
+            spacing: 5
+
+            Rectangle
+            {
+                width: parent.width * 1/6
+                height: parent.height
+                color: "transparent"
+            }
+
+            Label
+            {
+                width: parent.width * 1/6
+                height: parent.height
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: "<b> Theme </b>"
+                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                font.family: UIStyle.fontName
+                font.pixelSize: UIStyle.fontSize_Big
+            }
+
+            Rectangle
+            {
+                width: parent.width * 1/6
+                height: parent.height
+                color: "transparent"
+            }
+
+            Label
+            {
+                width: parent.width * 1/20
+                height: parent.height
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: "<b> Dark </b>"
+                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                font.family: UIStyle.fontName
+                font.pixelSize: UIStyle.fontSize_Medium
+            }
+
+            Switch
+            {
+                width: parent.width * 1/20
+                height: parent.height
+//                text: qsTr("Wi-Fi")
+                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                onToggled:
+                {
+                    UIStyle.darkTheme = !UIStyle.darkTheme
+                }
+            }
+
+//            Button
+//            {
+//                id: btnChangeTheme
+//                width: parent.width * 1/6
+//                height: parent.height
+//                text: "Change Theme"
+//                highlighted: UIStyle.darkTheme
+//                background:  Rectangle {
+//                    radius: 9
+//                    color: UIStyle.themeBlue
+//                }
+//                onClicked:
+//                {
+//                    UIStyle.darkTheme = !UIStyle.darkTheme
+//                    btnHome.background.color = UIStyle.themeBlue
+//                    btnSetting.background.color = UIStyle.themeBlue
+//                    btnCloseOpenDoor.background.color = UIStyle.themeBlue
+//                }
+//                onHoveredChanged: btnChangeTheme.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+//            }
+
+            Label
+            {
+                width: parent.width * 1/20
+                height: parent.height
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: "<b> Light </b>"
+                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                font.family: UIStyle.fontName
+                font.pixelSize: UIStyle.fontSize_Medium
+            }
+
+            Rectangle
+            {
+                width: parent.width * 1/6
+                height: parent.height
+                color: "transparent"
+            }
+
+        }
+
+
+
+    }
+
+    //*********************************************************
+    //*********************************************************
+    // Temperature grid
+
+    Grid
+    {
+        id: temperature_grid
+        width: parent.width
+        height: parent.height
+        rows: 8
+        visible: false
 
         Button
         {
-            id: btnCloseOpenDoor
-            width: parent.width * 1/5
-            height: parent.height * 1/8
-            text: "Open/Close Door"
+            id: btnTemperatureBack
+            width: parent.width
+            height: parent.height * 1/10
+            text: "Back"
             highlighted: UIStyle.darkTheme
             background:  Rectangle {
                 radius: 9
@@ -911,154 +1300,212 @@ Window {
             }
             onClicked:
             {
-                serialPort.close_open_door(true)
+                main_grid.visible=true
+                temperature_grid.visible=false
             }
-            onHoveredChanged: btnCloseOpenDoor.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+            onHoveredChanged: btnTemperatureBack.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
         }
+
+        Rectangle
+        {
+            width: parent.width
+            height: parent.height * 1/8
+            color: "transparent"
+        }
+
+        Row
+        {
+            width: parent.width
+            height: parent.height * 1/4
+            spacing: 5
+
+            Rectangle
+            {
+                width: parent.width * 1/5
+                height: parent.height
+                color: "transparent"
+            }
+
+            Label
+            {
+                width: parent.width * 1/5
+                height: parent.height
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: "<b> Acctual Temperature: </b>"
+                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                font.family: UIStyle.fontName
+                font.pixelSize: UIStyle.fontSize_Big
+            }
+
+            Label
+            {
+                id: lbl_actual_temp
+                width: parent.width * 1/5
+                height: parent.height
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: "<b>20<b>"
+                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                font.family: UIStyle.fontName
+                font.pixelSize: UIStyle.fontSize_VeryBig
+            }
+
+            Label
+            {
+                width: parent.width * 1/5
+                height: parent.height
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: "Centigrade"
+                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                font.family: UIStyle.fontName
+                font.pixelSize: UIStyle.fontSize_Big
+            }
+
+            Rectangle
+            {
+                width: parent.width * 1/5
+                height: parent.height
+                color: "transparent"
+            }
+
+        }
+
+        Row
+        {
+            width: parent.width
+            height: parent.height * 1/4
+            spacing: 5
+
+            Rectangle
+            {
+                width: parent.width * 1/5
+                height: parent.height
+                color: "transparent"
+            }
+
+            Label
+            {
+                width: parent.width * 1/5
+                height: parent.height
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: "<b> Target Temperature: </b>"
+                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                font.family: UIStyle.fontName
+                font.pixelSize: UIStyle.fontSize_Big
+            }
+
+            Column
+            {
+                width: parent.width * 1/5
+                height: parent.height
+
+                Rectangle
+                {
+                    width: parent.width
+                    height: parent.height * 1/4
+                    color: "transparent"
+                }
+
+                SpinBox
+                {
+                    width: parent.width
+                    height: parent.height * 1/2
+                    from:0
+                    to:99
+                    value: 20
+                    Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                    font.pixelSize: UIStyle.fontSize_Big
+                }
+
+                Rectangle
+                {
+                    width: parent.width
+                    height: parent.height * 1/4
+                    color: "transparent"
+                }
+            }
+
+
+
+            Label
+            {
+                width: parent.width * 1/5
+                height: parent.height
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: "Centigrade"
+                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                font.family: UIStyle.fontName
+                font.pixelSize: UIStyle.fontSize_Big
+            }
+
+            Rectangle
+            {
+                width: parent.width * 1/5
+                height: parent.height
+                color: "transparent"
+            }
+
+        }
+
+
+        Rectangle
+        {
+            width: parent.width
+            height: parent.height * 1/8
+            color: "transparent"
+        }
+
     }
 
 
+    //*********************************************************
+    //*********************************************************
+    // Wash Reader grid
 
-    //    Grid
-    //    {
-    //        width: parent.width
-    //        height: parent.height
-    //        padding: 5
-    //        spacing: 3
-    //        columns: 2
-    //        visible: false
+    Grid
+    {
+        id: washReader_grid
+        width: parent.width
+        height: parent.height
+        rows: 3
+        visible: false
 
-    //        //*********************************************************************************
-    //        //*********************************************************************************
-    //        // left side _ main buttons
-    //        Frame
-    //        {
-    //            width: parent.width * 1/10
-    //            height: parent.height - 10
-    //            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+        Button
+        {
+            id: btnWashReaderBack
+            width: parent.width
+            height: parent.height * 1/10
+            text: "Back"
+            highlighted: UIStyle.darkTheme
+            background:  Rectangle {
+                radius: 9
+                color: UIStyle.themeBlue
+            }
+            onClicked:
+            {
+                main_grid.visible=true
+                washReader_grid.visible=false
+            }
+            onHoveredChanged: btnWashReaderBack.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+        }
 
-    //            Grid
-    //            {
-    //                columns: 1
-    //                width: parent.width
-    //                height: parent.height
-    //                spacing: 3
-    //                Button
-    //                {
-    //                    id: btnHome
-    //                    width: parent.width
-    //                    height: parent.height * 1/10
-    //                    text: "Home"
-    //                    enabled: false
-    //                    highlighted: UIStyle.darkTheme
-    //                    background:  Rectangle {
-    //                        radius: 9
-    //                        color: UIStyle.themeBlue
-    //                    }
-    //                    onClicked:
-    //                    {
-    //                        btnHome.enabled = false
-    //                        btnSetting.enabled = true
-    //                        mainStackView.pop()
-    //                        mainStackView.push("homePage.qml")
-    //                    }
-    //                    onHoveredChanged: btnHome.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
-    //                }
+        Label
+        {
+            width: parent.width
+            height: parent.height * 1/2
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            text: "<b> Under Construction </b>"
+            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+            font.family: UIStyle.fontName
+            font.pixelSize: 50
+        }
 
-    //                Button
-    //                {
-    //                    id: btnSetting
-    //                    width: parent.width
-    //                    height: parent.height * 1/10
-    //                    text: "Setting"
-    //                    highlighted: UIStyle.darkTheme
-    //                    background:  Rectangle {
-    //                        radius: 9
-    //                        color: UIStyle.themeBlue
-    //                    }
-    //                    onClicked:
-    //                    {
-    //                        btnHome.enabled = true
-    //                        btnSetting.enabled = false
-    //                        mainStackView.pop()
-    //                        mainStackView.push("settingPage.qml")
-    //                    }
-    //                    onHoveredChanged: btnSetting.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
-    //                }
 
-    //                Button
-    //                {
-    //                    id: btnChangeTheme
-    //                    width: parent.width
-    //                    height: parent.height * 1/10
-    //                    text: "Change Theme"
-    //                    highlighted: UIStyle.darkTheme
-    //                    background:  Rectangle {
-    //                        radius: 9
-    //                        color: UIStyle.themeBlue
-    //                    }
-    //                    onClicked:
-    //                    {
-    //                        UIStyle.darkTheme = !UIStyle.darkTheme
-    //                        btnHome.background.color = UIStyle.themeBlue
-    //                        btnSetting.background.color = UIStyle.themeBlue
-    //                        btnCloseOpenDoor.background.color = UIStyle.themeBlue
-    //                    }
-    //                    onHoveredChanged: btnChangeTheme.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
-    //                }
+    }
 
-    //                Rectangle
-    //                {
-    //                    width: parent.width
-    //                    height: parent.height * 5/10
-    //                    color: "transparent"
-    //                }
-
-    //                Button
-    //                {
-    //                    id: btnCloseOpenDoor
-    //                    width: parent.width
-    //                    height: parent.height * 1/10
-    //                    text: "exit"
-    //                    highlighted: UIStyle.darkTheme
-    //                    background:  Rectangle {
-    //                        radius: 9
-    //                        color: UIStyle.themeBlue
-    //                    }
-    //                    onClicked:
-    //                    {
-    //                        Qt.callLater(Qt.quit)
-    //                    }
-    //                    onHoveredChanged: btnCloseOpenDoor.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
-    //                }
-
-    //            }
-    //        }
-
-    //        //*********************************************************************************
-    //        //*********************************************************************************
-    //        // right side
-    //        Frame
-    //        {
-    //            width: parent.width * 9/10 - 15
-    //            height: parent.height - 10
-    //            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
-
-    //            Grid
-    //            {
-    //                width: parent.width
-    //                height: parent.height
-    //                columns: 1
-    //                spacing: 5
-
-    //                StackView {
-    //                    width: parent.width
-    //                    height: parent.height
-    //                    id: mainStackView
-    //                    initialItem: "homePage.qml"
-    //                }
-    //            }
-    //        }
-
-    //    }
 }
