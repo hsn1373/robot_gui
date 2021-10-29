@@ -6,5 +6,7 @@
         <file>Style/UIStyle.qml</file>
         <file>Images/Launcher_page.jpg</file>
         <file>Style/qmldir</file>
+        <file>Images/2.png</file>
+        <file>Images/3.png</file>
     </qresource>
 </RCC>

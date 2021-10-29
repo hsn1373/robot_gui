@@ -1,4 +1,5 @@
 QT += quick
+QT += xml
 QT += quickcontrols2
 QT += serialport
 CONFIG += c++11
@@ -17,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         defaultsettings.cpp \
         main.cpp \
+        movement.cpp \
         serialport.cpp
 
 RESOURCES += qml.qrc
@@ -34,4 +36,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     defaultsettings.h \
+    movement.h \
     serialport.h
