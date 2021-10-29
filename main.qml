@@ -334,7 +334,7 @@ Window {
                         height: parent.height
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
-                        text: "<b> Tip Type 1 </b>"
+                        text: "<b> Tip 1 </b>"
                         Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
                         font.family: UIStyle.fontName
                     }
@@ -550,7 +550,7 @@ Window {
                                 height: parent.height
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
-                                text: "<b> Tip Type 2 </b>"
+                                text: "<b> Tip 2 </b>"
                                 Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
                                 font.family: UIStyle.fontName
                             }
@@ -569,7 +569,7 @@ Window {
                                 height: parent.height
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
-                                text: "<b> Tip Type 3 </b>"
+                                text: "<b> Tip 3 </b>"
                                 Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
                                 font.family: UIStyle.fontName
                             }
@@ -1227,14 +1227,14 @@ Window {
                 Rectangle
                 {
                     width: parent.width
-                    height: parent.height * 1/4
+                    height: parent.height * 1/10
                     color: "transparent"
                 }
 
                 Row
                 {
                     width: parent.width
-                    height: parent.height * 1/10
+                    height: parent.height * 2/10
                     Rectangle
                     {
                         width: parent.width * 1/8
@@ -1270,14 +1270,14 @@ Window {
                 Rectangle
                 {
                     width: parent.width
-                    height: parent.height * 1/10
+                    height: parent.height * 1/20
                     color: "transparent"
                 }
 
                 Row
                 {
                     width: parent.width
-                    height: parent.height * 1/10
+                    height: parent.height * 2/10
                     Rectangle
                     {
                         width: parent.width * 1/8
@@ -1344,14 +1344,14 @@ Window {
                 Rectangle
                 {
                     width: parent.width
-                    height: parent.height * 1/10
+                    height: parent.height * 1/20
                     color: "transparent"
                 }
 
                 Row
                 {
                     width: parent.width
-                    height: parent.height * 1/10
+                    height: parent.height * 2/10
                     Rectangle
                     {
                         width: parent.width * 1/8
@@ -1386,14 +1386,14 @@ Window {
                 Rectangle
                 {
                     width: parent.width
-                    height: parent.height * 1/10
+                    height: parent.height * 1/20
                     color: "transparent"
                 }
 
                 Row
                 {
                     width: parent.width
-                    height: parent.height * 1/10
+                    height: parent.height * 2/10
                     Rectangle
                     {
                         width: parent.width * 1/8
@@ -1500,7 +1500,7 @@ Window {
                         id: btnManulaMovement_Y_Home
                         width: parent.width * 1/7
                         height: parent.height
-                        text: "Home Y"
+                        text: "HY"
                         highlighted: UIStyle.darkTheme
                         background:  Rectangle {
                             radius: 9
@@ -1561,7 +1561,7 @@ Window {
                         id: btnManulaMovement_X_Home
                         width: parent.width * 1/7
                         height: parent.height
-                        text: "Home X"
+                        text: "HX"
                         highlighted: UIStyle.darkTheme
                         background:  Rectangle {
                             radius: 9
@@ -2031,7 +2031,7 @@ Window {
                         id: btnManulaMovement_Z_Home
                         width: parent.width
                         height: parent.height * 1/7
-                        text: "Home"
+                        text: "HZ"
                         highlighted: UIStyle.darkTheme
                         background:  Rectangle {
                             radius: 9
@@ -2209,7 +2209,7 @@ Window {
                         id: btnManulaMovement_U_Home
                         width: parent.width
                         height: parent.height * 1/7
-                        text: "Home"
+                        text: "HU"
                         highlighted: UIStyle.darkTheme
                         background:  Rectangle {
                             radius: 9
@@ -2374,7 +2374,7 @@ Window {
                             height: parent.height
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
-                            text: "<b> Source Type </b>"
+                            text: "<b> Type </b>"
                             Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
                             font.family: UIStyle.fontName
                         }
@@ -2396,7 +2396,7 @@ Window {
                                 border.color: UIStyle.borderGrey
                             }
 
-                            model: ["Source-1","Source-2"]
+                            model: ["Src-1","Src-2"]
                             onActivated: {
                                 this.displayText = this.currentText
                                 if(cmb_addNewMove_Source_sourceType.currentIndex==1)
@@ -2497,7 +2497,7 @@ Window {
                             height: parent.height
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
-                            text: "<b> Source Number </b>"
+                            text: "<b> Number </b>"
                             Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
                             font.family: UIStyle.fontName
                         }
