@@ -1545,7 +1545,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.y_relative_move(100.0)
+                            serialPort.relative_move(2,100.0)
                         }
                         onHoveredChanged: btnManulaMovement_Yp100.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1600,7 +1600,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.y_relative_move(10.0)
+                            serialPort.relative_move(2,10.0)
                         }
                         onHoveredChanged: btnManulaMovement_Yp10.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1650,7 +1650,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.y_relative_move(1.0)
+                            serialPort.relative_move(2,1.0)
                         }
                         onHoveredChanged: btnManulaMovement_Yp1.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1693,7 +1693,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.x_relative_move(-100.0)
+                            serialPort.relative_move(1,-100.0)
                         }
                         onHoveredChanged: btnManulaMovement_Xn100.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1710,7 +1710,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.x_relative_move(-10.0)
+                            serialPort.relative_move(1,-10.0)
                         }
                         onHoveredChanged: btnManulaMovement_Xn10.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1727,7 +1727,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.x_relative_move(-1.0)
+                            serialPort.relative_move(1,-1.0)
                         }
                         onHoveredChanged: btnManulaMovement_Xn1.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1751,7 +1751,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.x_relative_move(1.0)
+                            serialPort.relative_move(1,1.0)
                         }
                         onHoveredChanged: btnManulaMovement_Xp1.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1768,7 +1768,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.x_relative_move(10.0)
+                            serialPort.relative_move(1,10.0)
                         }
                         onHoveredChanged: btnManulaMovement_Xp10.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1785,7 +1785,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.x_relative_move(100.0)
+                            serialPort.relative_move(1,100.0)
                         }
                         onHoveredChanged: btnManulaMovement_Xp100.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1817,7 +1817,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.y_relative_move(-1.0)
+                            serialPort.relative_move(2,-1.0)
                         }
                         onHoveredChanged: btnManulaMovement_Yn1.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1855,7 +1855,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.y_relative_move(-10.0)
+                            serialPort.relative_move(2,-10.0)
                         }
                         onHoveredChanged: btnManulaMovement_Yn10.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1905,7 +1905,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.y_relative_move(-100.0)
+                            serialPort.relative_move(2,-100.0)
                         }
                         onHoveredChanged: btnManulaMovement_Yn100.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -1988,7 +1988,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.z_relative_move(100.0)
+                            serialPort.relative_move(3,100.0)
                         }
                         onHoveredChanged: btnManulaMovement_Zp100.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -2005,7 +2005,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.z_relative_move(10.0)
+                            serialPort.relative_move(3,10.0)
                         }
                         onHoveredChanged: btnManulaMovement_Zp10.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -2022,7 +2022,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.z_relative_move(1.0)
+                            serialPort.relative_move(3,1.0)
                         }
                         onHoveredChanged: btnManulaMovement_Zp1.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -2056,7 +2056,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.z_relative_move(-1.0)
+                            serialPort.relative_move(3,-1.0)
                         }
                         onHoveredChanged: btnManulaMovement_Zn1.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -2073,7 +2073,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.z_relative_move(-10.0)
+                            serialPort.relative_move(3,-10.0)
                         }
                         onHoveredChanged: btnManulaMovement_Zn10.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -2090,7 +2090,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.z_relative_move(-100.0)
+                            serialPort.relative_move(3,-100.0)
                         }
                         onHoveredChanged: btnManulaMovement_Zn100.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -2166,7 +2166,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.u_relative_move(100.0)
+                            serialPort.relative_move(4,100.0)
                         }
                         onHoveredChanged: btnManulaMovement_Up100.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -2183,7 +2183,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.u_relative_move(10.0)
+                            serialPort.relative_move(4,10.0)
                         }
                         onHoveredChanged: btnManulaMovement_Up10.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -2200,7 +2200,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.u_relative_move(1.0)
+                            serialPort.relative_move(4,1.0)
                         }
                         onHoveredChanged: btnManulaMovement_Up1.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -2234,7 +2234,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.u_relative_move(-1.0)
+                            serialPort.relative_move(4,-1.0)
                         }
                         onHoveredChanged: btnManulaMovement_Un1.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -2251,7 +2251,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.u_relative_move(-10.0)
+                            serialPort.relative_move(4,-10.0)
                         }
                         onHoveredChanged: btnManulaMovement_Un10.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }
@@ -2268,7 +2268,7 @@ Window {
                         }
                         onClicked:
                         {
-                            serialPort.u_relative_move(-100.0)
+                            serialPort.relative_move(4,-100.0)
                         }
                         onHoveredChanged: btnManulaMovement_Un100.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                     }

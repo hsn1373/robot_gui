@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QDomDocument>
 #include <QtXml>
+#include "mythread.h"
 
 class serialport : public QObject
 {
@@ -18,6 +19,9 @@ private:
     QSerialPortInfo _serial_ports_info;         // Object for get available serial devices
     QList<QSerialPortInfo> _serial_ports_list;  // Object for list all available devices in GUI
     QStringList _baud_rate_list;                // Object for list all available devices in GUI
+
+    QThread workerThread;
+    mythread *worker;
 
     // Serial Port config
     qint32 _baud_rate;
@@ -46,6 +50,7 @@ private:
 public:
     explicit serialport(QObject *parent = nullptr);
 
+    void thread_config();
     QStringList getSerialPortsList() const;
     void generate_select_sampler_gcode(int sampler_type);
     void generate_pick_tip_gcode(int sampler_type,int count);
@@ -54,23 +59,21 @@ public:
     void generate_go_to_target_gcode(int count,int start_row,int start_column);
     void generate_discharge_gcode();
     void generate_pick_down_sampler_gcode(int sampler_type);
-    QQueue<QString> Final_Generated_Gcodes;
+    QList<QString> Final_Generated_Gcodes;
 
 signals:
     void serialPortsListChanged();
     void portOpenSignal();
     void portNotOpenSignal();
     void dataSent();
+    void doWriteSerialData();
 
 public slots:
     void open_port();
     void close_open_door(bool val);
     void set_moves_relative();
     void set_moves_absolut();
-    void x_relative_move(double value);
-    void y_relative_move(double value);
-    void z_relative_move(double value);
-    void u_relative_move(double value);
+    void relative_move(int axis,double value);
     void home_axis(int axis);
     bool writeDate(QString val);
     void add_new_move(int source_type,int source_start_point_row_lbl,int source_start_point_col_lbl,int source2_number

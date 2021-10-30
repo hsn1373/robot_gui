@@ -13,7 +13,18 @@ serialport::serialport(QObject *parent) : QObject(parent)
 
     load_backend_params();
 
+    thread_config();
+
     open_port();
+}
+
+void serialport::thread_config()
+{
+    worker = new mythread(&Final_Generated_Gcodes,_serialport);
+    worker->moveToThread(&workerThread);
+    connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
+    connect(this, &serialport::doWriteSerialData, worker, &mythread::writeSerialData);
+    workerThread.start();
 }
 
 void serialport::load_backend_params()
@@ -305,27 +316,33 @@ void serialport::set_moves_absolut()
     qDebug() << res;
 }
 
-void serialport::x_relative_move(double value)
+void serialport::relative_move(int axis,double value)
 {
-    bool res=writeDate("G01 X"+QString::number(value)+" F"+QString::number(_x_axis_speed)+"\n");
-    qDebug() << res;
-}
+    //***********************************************
+    //
+    // X --> 1
+    // Y --> 2
+    // Z --> 3
+    // U --> 4
+    //
+    //***********************************************
 
-void serialport::y_relative_move(double value)
-{
-    bool res=writeDate("G01 Y"+QString::number(value)+" F"+QString::number(_y_axis_speed)+"\n");
-    qDebug() << res;
-}
-
-void serialport::z_relative_move(double value)
-{
-    bool res=writeDate("G01 Z"+QString::number(value)+" F"+QString::number(_z_axis_speed)+"\n");
-    qDebug() << res;
-}
-
-void serialport::u_relative_move(double value)
-{
-    bool res=writeDate("G01 U"+QString::number(value)+" F"+QString::number(_u_axis_speed)+"\n");
+    bool res=false;
+    switch(axis)
+    {
+        case 1:
+            res=writeDate("G01 X"+QString::number(value)+" F"+QString::number(_x_axis_speed)+"\n");
+        break;
+        case 2:
+            res=writeDate("G01 Y"+QString::number(value)+" F"+QString::number(_y_axis_speed)+"\n");
+        break;
+        case 3:
+            res=writeDate("G01 Z"+QString::number(value)+" F"+QString::number(_z_axis_speed)+"\n");
+        break;
+        case 4:
+            res=writeDate("G01 U"+QString::number(value)+" F"+QString::number(_u_axis_speed)+"\n");
+        break;
+    }
     qDebug() << res;
 }
 
@@ -346,21 +363,18 @@ void serialport::home_axis(int axis)
     {
         case 1:
             res=writeDate("G28 X\n");
-            qDebug() << res;
         break;
         case 2:
             res=writeDate("G28 Y\n");
-            qDebug() << res;
         break;
         case 3:
             res=writeDate("G28 Z\n");
-            qDebug() << res;
         break;
         case 4:
             res=writeDate("G28 U\n");
-            qDebug() << res;
         break;
     }
+    qDebug() << res;
 }
 
 bool serialport::writeDate(QString val)
@@ -446,6 +460,7 @@ void serialport::start_algorithm()
 
 //    for(int i=0;i<Final_Generated_Gcodes.length();i++)
 //        qDebug() << Final_Generated_Gcodes.at(i);
+    emit doWriteSerialData();
 }
 
 void serialport::generate_select_sampler_gcode(int sampler_type)

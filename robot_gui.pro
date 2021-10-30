@@ -19,6 +19,7 @@ SOURCES += \
         defaultsettings.cpp \
         main.cpp \
         movement.cpp \
+        mythread.cpp \
         serialport.cpp
 
 RESOURCES += qml.qrc
@@ -37,4 +38,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     defaultsettings.h \
     movement.h \
+    mythread.h \
     serialport.h
