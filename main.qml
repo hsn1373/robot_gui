@@ -41,6 +41,10 @@ Window {
             lbl_status.color = UIStyle.portSatusLabelColorOpened
             btnOpenPort.enabled = false
             btnClosePort.enabled = true
+
+            messagePopupMessageLbl.text=" Port Is Opened Successfully ";
+            messagePopupMessageLbl.color = UIStyle.portSatusLabelColorOpened
+
         }
         onPortNotOpenSignal:
         {
@@ -48,10 +52,30 @@ Window {
             lbl_status.color = UIStyle.portSatusLabelColorClosed
             btnOpenPort.enabled = true
             btnClosePort.enabled = false
+
+            messagePopupMessageLbl.text=" Error In Openning Port ! Port Is Closed ";
+            messagePopupMessageLbl.color = UIStyle.portSatusLabelColorClosed
         }
         onDataSent:
         {
             lbl_status.text = "<b> G-code is sent ! </b>";
+        }
+        onFinishSendData:
+        {
+            btnSetMovesBack.enabled=true
+            btnSetMovesAddNewMove.enabled=true
+            btnSetMovesClearMoves.enabled=true
+            btnSetMovesStartMove.enabled=true
+
+            messagePopupMessageLbl.text=" Finish Send Data ";
+            messagePopupMessageLbl.color = UIStyle.portSatusLabelColorOpened
+            messagePopup.open()
+        }
+
+        Component.onCompleted:
+        {
+            serialPort.open_port()
+            messagePopup.open()
         }
     }
 
@@ -160,6 +184,7 @@ Window {
                 width: parent.width * 1/3 - 6
                 height: parent.height
                 text: "Temperature"
+                enabled: false
                 highlighted: UIStyle.darkTheme
                 font.pixelSize: UIStyle.fontSize_Big
                 background:  Rectangle {
@@ -180,6 +205,7 @@ Window {
                 width: parent.width * 1/3 - 6
                 height: parent.height
                 text: "Wash Reader"
+                enabled: false
                 highlighted: UIStyle.darkTheme
                 font.pixelSize: UIStyle.fontSize_Big
                 background:  Rectangle {
@@ -1309,10 +1335,10 @@ Window {
                                     SourceRowObjects[j].children[k].color= UIStyle.shapeColor1
 
                             var Source2KitsObjs=[source2_kit1_dot,source2_kit2_dot,source2_kit3_dot,
-                                                source2_kit4_dot,source2_kit5_dot,source2_kit6_dot,
-                                                source2_kit7_dot,source2_kit8_dot,source2_kit9_dot,
-                                                source2_kit10_dot,source2_kit11_dot,source2_kit12_dot,
-                                                source2_kit13_dot]
+                                                 source2_kit4_dot,source2_kit5_dot,source2_kit6_dot,
+                                                 source2_kit7_dot,source2_kit8_dot,source2_kit9_dot,
+                                                 source2_kit10_dot,source2_kit11_dot,source2_kit12_dot,
+                                                 source2_kit13_dot]
                             // source type2
                             for(i=0;i<13;i++)
                                 Source2KitsObjs[i].color= UIStyle.shapeColor1
@@ -1371,6 +1397,10 @@ Window {
                         }
                         onClicked:
                         {
+                            btnSetMovesBack.enabled=false
+                            btnSetMovesAddNewMove.enabled=false
+                            btnSetMovesClearMoves.enabled=false
+                            btnSetMovesStartMove.enabled=false
                             serialPort.start_algorithm()
                         }
                         onHoveredChanged: btnSetMovesStartMove.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
@@ -1388,6 +1418,42 @@ Window {
                     width: parent.width
                     height: parent.height * 1/20
                     color: "transparent"
+                }
+
+                Row
+                {
+                    width: parent.width
+                    height: parent.height * 2/10
+                    Rectangle
+                    {
+                        width: parent.width * 1/8
+                        height: parent.height
+                        color: "transparent"
+                    }
+                    Button
+                    {
+                        id: btnSetMovesStop
+                        width: parent.width * 6/8
+                        height: parent.height
+                        enabled: false
+                        text: "Stop"
+                        highlighted: UIStyle.darkTheme
+                        background:  Rectangle {
+                            radius: 9
+                            color: UIStyle.themeBlue
+                        }
+                        onClicked:
+                        {
+                            serialPort.stop_send_data()
+                        }
+                        onHoveredChanged: btnSetMovesStop.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+                    }
+                    Rectangle
+                    {
+                        width: parent.width * 1/8
+                        height: parent.height
+                        color: "transparent"
+                    }
                 }
 
                 Row
@@ -2322,7 +2388,7 @@ Window {
         Row
         {
             width: parent.width
-            height: parent.height * 1/2
+            height: parent.height * 7/10
             spacing: 5
             Rectangle
             {
@@ -2342,12 +2408,12 @@ Window {
                 {
                     width: parent.width
                     height: parent.height
-                    rows: 5
+                    rows: 7
 
                     Label
                     {
                         width: parent.width
-                        height: parent.height * 1/7
+                        height: parent.height * 1/10
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         text: "<b> Source </b>"
@@ -2358,7 +2424,7 @@ Window {
                     Rectangle
                     {
                         width: parent.width
-                        height: parent.height * 1/7
+                        height: parent.height * 1/10
                         color: "transparent"
                     }
 
@@ -2366,7 +2432,7 @@ Window {
                     Row
                     {
                         width: parent.width
-                        height: parent.height * 2/7
+                        height: parent.height * 2/10
 
                         Label
                         {
@@ -2402,11 +2468,13 @@ Window {
                                 if(cmb_addNewMove_Source_sourceType.currentIndex==1)
                                 {
                                     sourceType1_row1.visible=false
+                                    sourceType1_row2.visible=false
                                     sourceType2_row1.visible=true
                                 }
                                 else
                                 {
                                     sourceType1_row1.visible=true
+                                    sourceType1_row2.visible=true
                                     sourceType2_row1.visible=false
                                 }
                             }
@@ -2416,7 +2484,7 @@ Window {
                     Rectangle
                     {
                         width: parent.width
-                        height: parent.height * 1/7
+                        height: parent.height * 1/10
                         color: "transparent"
                     }
 
@@ -2424,7 +2492,7 @@ Window {
                     {
                         id: sourceType1_row1
                         width: parent.width
-                        height: parent.height * 2/7
+                        height: parent.height * 2/10
 
                         Label
                         {
@@ -2484,11 +2552,12 @@ Window {
                         }
                     }
 
+
                     Row
                     {
                         id: sourceType2_row1
                         width: parent.width
-                        height: parent.height * 2/7
+                        height: parent.height * 2/10
                         visible: false
 
                         Label
@@ -2526,6 +2595,43 @@ Window {
                         }
                     }
 
+                    Rectangle
+                    {
+                        width: parent.width
+                        height: parent.height * 1/10
+                        color: "transparent"
+                    }
+
+                    Row
+                    {
+                        id: sourceType1_row2
+                        width: parent.width
+                        height: parent.height * 2/10
+
+                        Label
+                        {
+                            width: parent.width * 2/5
+                            height: parent.height
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            text: "<b> Liquid Height </b>"
+                            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                            font.family: UIStyle.fontName
+                        }
+
+                        TextField
+                        {
+                            id: txt_addNewMove_Source_liq_height
+                            width: parent.width * 3/5
+                            height: parent.height
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            text: "5.5"
+                            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                            font.family: UIStyle.fontName
+                        }
+                    }
+
                 }
             }
 
@@ -2544,7 +2650,7 @@ Window {
                     Label
                     {
                         width: parent.width
-                        height: parent.height * 1/7
+                        height: parent.height * 1/10
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         text: "<b> Target </b>"
@@ -2555,14 +2661,14 @@ Window {
                     Rectangle
                     {
                         width: parent.width
-                        height: parent.height * 1/7
+                        height: parent.height * 1/10
                         color: "transparent"
                     }
 
                     Row
                     {
                         width: parent.width
-                        height: parent.height * 2/7
+                        height: parent.height * 2/10
 
                         Label
                         {
@@ -2625,14 +2731,14 @@ Window {
                     Rectangle
                     {
                         width: parent.width
-                        height: parent.height * 1/7
+                        height: parent.height * 1/10
                         color: "transparent"
                     }
 
                     Row
                     {
                         width: parent.width
-                        height: parent.height * 2/7
+                        height: parent.height * 2/10
 
                         Label
                         {
@@ -2674,7 +2780,7 @@ Window {
                     Label
                     {
                         width: parent.width
-                        height: parent.height * 1/5
+                        height: parent.height * 1/7
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         text: "<b> Sampler Type </b>"
@@ -2684,14 +2790,14 @@ Window {
                     Rectangle
                     {
                         width: parent.width
-                        height: parent.height * 1/5
+                        height: parent.height * 1/7
                         color: "transparent"
                     }
                     ComboBox
                     {
                         id: cmb_addNewMove_Sampler_Type
                         width: parent.width
-                        height: parent.height * 1/5
+                        height: parent.height * 1/7
                         Material.accent: Material.primary
                         Material.theme: Material.Light
                         font.pointSize:UIStyle.fontSize
@@ -2704,7 +2810,7 @@ Window {
                             border.color: UIStyle.borderGrey
                         }
 
-                        model: ["Sampler-1","Sampler-2"]
+                        model: ["Sampler-1"]
                         onActivated: {
                             this.displayText = this.currentText
                         }
@@ -2748,6 +2854,7 @@ Window {
                     serialPort.add_new_move(cmb_addNewMove_Source_sourceType.currentIndex+1,
                                             cmb_addNewMove_Source_Start_row.currentIndex+1,
                                             cmb_addNewMove_Source_Start_column.currentIndex+1,
+                                            txt_addNewMove_Source_liq_height.text,
                                             cmb_addNewMove_Source2_source_number.currentIndex+1,
                                             cmb_addNewMove_Target_Start_row.currentIndex+1,
                                             cmb_addNewMove_Target_Start_column.currentIndex+1,
@@ -2760,7 +2867,7 @@ Window {
                     {// Type 1 Source
                         var SourceRowObjects=[]
                         for(var i=1;i<13;i++)
-                        SourceRowObjects.push(source_dots_grid.children[i])
+                            SourceRowObjects.push(source_dots_grid.children[i])
 
                         var current_row=cmb_addNewMove_Source_Start_row.currentIndex
                         var current_col=cmb_addNewMove_Source_Start_column.currentIndex
@@ -3468,6 +3575,94 @@ Window {
         }
 
 
+    }
+
+
+    //*********************************************************
+    //*********************************************************
+    // Message Popup
+
+    Popup {
+        id: messagePopup
+        implicitHeight: contentItem.implicitHeight
+        //anchors.centerIn: parent
+        x: (parent.width - width) / 2
+        y: 20
+        width: 500
+        height: 200
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        padding: 1
+        background:  Rectangle {
+            radius: 5
+            color: UIStyle.shapeColor3
+            border.color: UIStyle.darkTheme ? '#373564' : '#0a9696'
+            border.width: 1
+        }
+        Frame
+        {
+            width: parent.width
+            height: parent.height
+            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+
+            Column
+            {
+                id:mainpopupgrid
+                width: parent.width
+                height: parent.height
+
+                Label
+                {
+                    id: messagePopupMessageLbl
+                    width: parent.width
+                    height: parent.height * 2/3
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    text: ""
+                    color: UIStyle.portSatusLabelColorClosed
+                    font.family: UIStyle.fontName
+                    font.pixelSize: UIStyle.fontSize_Medium
+                }
+
+                Row
+                {
+                    width: parent.width
+                    height: parent.height * 1/3
+
+                    Rectangle
+                    {
+                        width: parent.width * 1/3
+                        height: parent.height
+                        color: "transparent"
+                    }
+                    Button
+                    {
+                        id: messagePopupCloseBtn
+                        width: parent.width * 1/3
+                        height: parent.height
+                        text: "close"
+                        highlighted: UIStyle.darkTheme
+                        background:  Rectangle {
+                            radius: 9
+                            color: UIStyle.themeBlue
+                        }
+                        onClicked:
+                        {
+                            messagePopup.close()
+                        }
+                        onHoveredChanged: messagePopupCloseBtn.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+                    }
+                    Rectangle
+                    {
+                        width: parent.width * 1/3
+                        height: parent.height
+                        color: "transparent"
+                    }
+                }
+
+            }
+        }
     }
 
 }

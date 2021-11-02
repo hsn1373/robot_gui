@@ -5,14 +5,15 @@ movement::movement(QObject *parent) : QObject(parent)
 
 }
 
-movement::movement(int source_type,int source_start_point_row, int source_start_point_col,int source2_number,
-                   int target_start_point_row,int target_start_point_col,
+movement::movement(int source_type,int source_start_point_row, int source_start_point_col,double source_liq_height,
+                   int source2_number,int target_start_point_row,int target_start_point_col,
                    int numbrer_of_units, int sampler_type, QObject *parent)
     : QObject(parent)
 {
     _source_type=source_type;
     _source_start_point_row = source_start_point_row;
     _source_start_point_col=source_start_point_col;
+    _source_liq_height=source_liq_height;
     _source2_number=source2_number;
     _target_start_point_row=target_start_point_row;
     _target_start_point_col=target_start_point_col;
@@ -48,6 +49,16 @@ int movement::sourceStartPointCol()
 void movement::setSourceStartPointCol(int value)
 {
     _source_start_point_col=value;
+}
+
+double movement::sourceLiqHeight()
+{
+    return _source_liq_height;
+}
+
+void movement::setSourceLiqHeight(double value)
+{
+    _source_liq_height=value;
 }
 
 int movement::source2Number()

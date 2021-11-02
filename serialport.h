@@ -51,12 +51,15 @@ public:
     explicit serialport(QObject *parent = nullptr);
 
     void thread_config();
+    void home_all_axises();
     QStringList getSerialPortsList() const;
+    void generate_initial_gcodes();
     void generate_select_sampler_gcode(int sampler_type);
+    void generate_pickup_sampler_routine_gcode();
     void generate_pick_tip_gcode(int sampler_type,int count);
-    void generate_go_to_source_type1_gcode(int count,int start_row,int start_column);
-    void generate_go_to_source_type2_gcode(int source_num);
-    void generate_go_to_target_gcode(int count,int start_row,int start_column);
+    void generate_go_to_source_type1_gcode(int count,int start_row,int start_column,double source_liq_height,int sampler_type);
+    void generate_go_to_source_type2_gcode(int source_num,int sampler_type);
+    void generate_go_to_target_gcode(int count,int start_row,int start_column,int sampler_type);
     void generate_discharge_gcode();
     void generate_pick_down_sampler_gcode(int sampler_type);
     QList<QString> Final_Generated_Gcodes;
@@ -67,30 +70,38 @@ signals:
     void portNotOpenSignal();
     void dataSent();
     void doWriteSerialData();
+    void finishSendData();
+    void stopSerialSendData();
 
 public slots:
     void open_port();
-    void close_open_door(bool val);
+    void close_open_door();
+    void in_out_workspace();
     void set_moves_relative();
     void set_moves_absolut();
     void relative_move(int axis,double value);
     void home_axis(int axis);
     bool writeDate(QString val);
-    void add_new_move(int source_type,int source_start_point_row_lbl,int source_start_point_col_lbl,int source2_number
+    void add_new_move(int source_type,int source_start_point_row_lbl,int source_start_point_col_lbl
+                      ,double source_liq_height,int source2_number
                       ,int target_start_point_row_lbl,int target_start_point_col_lbl,int number_of_units
                       ,int sampler_type);
     void start_algorithm();
     void load_backend_params();
     void clear_moves();
     void run_next_step();
+    void sendDataDoneSlot();
+    void stop_send_data();
 
 private:
+    bool _is_door_close;
+    bool _is_workspace_in;
     double _source_x_position;
     double _source_y_position;
     double _source_z_position;
     double _source_x_distance;
     double _source_y_distance;
-    double _source_liquid_height;
+    double _source_z_max;
     double _source2_kit1_x_position;
     double _source2_kit1_y_position;
     double _source2_kit2_x_position;
@@ -143,24 +154,32 @@ private:
     double _discharge_x_position;
     double _discharge_y_position;
     double _discharge_z_position;
+    double _discharge_u_position;
     double _x_axis_speed;
     double _y_axis_speed;
     double _z_axis_speed;
     double _u_axis_speed;
     double _v_axis_speed;
+    double _w_axis_speed;
     double _sampler1_x_position;
     double _sampler1_y_position;
     double _sampler1_z_position;
-    double _sampler1_height;
+    double _sampler1_height_press;
+    double _sampler1_height_release;
     double _sampler2_x_position;
     double _sampler2_y_position;
     double _sampler2_z_position;
-    double _sampler2_height;
+    double _sampler2_height_press;
+    double _sampler2_height_release;
     double _sampler3_x_position;
     double _sampler3_y_position;
     double _sampler3_z_position;
-    double _sampler3_height;
+    double _sampler3_height_press;
+    double _sampler3_height_release;
     double _z_axis_offset;
+    double _open_door_value;
+    double _out_workspace_value;
+    QString _pick_sampler_routine;
     int _step_counter;
 
 

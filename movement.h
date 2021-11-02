@@ -10,6 +10,7 @@ class movement : public QObject
     Q_PROPERTY(int sourceType READ sourceType WRITE setSourceType NOTIFY sourceTypeChanged)
     Q_PROPERTY(int sourceStartPointRow READ sourceStartPointRow WRITE setSourceStartPointRow NOTIFY sourceStartPointRowChanged)
     Q_PROPERTY(int sourceStartPointCol READ sourceStartPointCol WRITE setSourceStartPointCol NOTIFY sourceStartPointColChanged)
+    Q_PROPERTY(int sourceLiqHeight READ sourceLiqHeight WRITE setSourceLiqHeight NOTIFY sourceLiqHeightChanged)
     Q_PROPERTY(int source2Number READ source2Number WRITE setSource2Number NOTIFY source2NumberChanged)
     Q_PROPERTY(int targetStartPointRow READ targetStartPointRow WRITE setTargetStartPointRow NOTIFY targetStartPointRowChanged)
     Q_PROPERTY(int targetStartPointCol READ targetStartPointCol WRITE setTargetStartPointCol NOTIFY targetStartPointColChanged)
@@ -18,12 +19,13 @@ class movement : public QObject
 
 public:
     explicit movement(QObject *parent = nullptr);
-    movement(int source_type,int source_start_point_row, int source_start_point_col,int source2_number,int target_start_point_row,int target_start_point_col,int numbrer_of_units, int sampler_type, QObject *parent=0);
+    movement(int source_type,int source_start_point_row, int source_start_point_col,double source_liq_height,int source2_number,int target_start_point_row,int target_start_point_col,int numbrer_of_units, int sampler_type, QObject *parent=0);
 
 Q_SIGNALS:
     void sourceTypeChanged();
     void sourceStartPointRowChanged();
     void sourceStartPointColChanged();
+    void sourceLiqHeightChanged();
     void source2NumberChanged();
     void targetStartPointRowChanged();
     void targetStartPointColChanged();
@@ -37,6 +39,8 @@ public Q_SLOTS:
     void setSourceStartPointRow(int value);
     int sourceStartPointCol();
     void setSourceStartPointCol(int value);
+    double sourceLiqHeight();
+    void setSourceLiqHeight(double value);
     int source2Number();
     void setSource2Number(int value);
     int targetStartPointRow();
@@ -55,6 +59,7 @@ private:
     int _source_type;
     int _source_start_point_row;
     int _source_start_point_col;
+    double _source_liq_height;
     int _source2_number;
     int _target_start_point_row;
     int _target_start_point_col;
