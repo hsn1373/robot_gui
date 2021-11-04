@@ -234,7 +234,7 @@ Window {
                 }
                 onClicked:
                 {
-
+                    serialPort.close_open_door()
                 }
                 onHoveredChanged: btnOpenCloseDoor.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
             }
@@ -261,7 +261,7 @@ Window {
                 }
                 onClicked:
                 {
-
+                    serialPort.in_out_workspace()
                 }
                 onHoveredChanged: btnInOutWorkSpace.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
             }
@@ -2614,7 +2614,7 @@ Window {
                             height: parent.height
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
-                            text: "<b> Liquid Height </b>"
+                            text: "<b>Liq Height</b>"
                             Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
                             font.family: UIStyle.fontName
                         }

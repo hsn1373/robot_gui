@@ -11,7 +11,7 @@ serialport::serialport(QObject *parent) : QObject(parent)
 
     _step_counter=0;
 
-    _is_door_close=true;
+    _is_door_close=false;
     _is_workspace_in=true;
 
     load_backend_params();
@@ -32,7 +32,7 @@ void serialport::thread_config()
 
 void serialport::home_all_axises()
 {
-    bool res=writeDate("G28 ZXYWV\n");
+    bool res=writeDate("G28 WVZXY\n");
     qDebug() << res;
 }
 
@@ -345,10 +345,10 @@ void serialport::in_out_workspace()
     }
     else
     {
-        res=writeDate("G01 V"+QString::number(_open_door_value)+" F"+QString::number(_v_axis_speed)+"\n");
-        _is_door_close=!_is_door_close;
         res=writeDate("G28 W\n");
         _is_workspace_in=!_is_workspace_in;
+        res=writeDate("G01 V"+QString::number(_open_door_value)+" F"+QString::number(_v_axis_speed)+"\n");
+        _is_door_close=!_is_door_close;
     }
     qDebug() << res;
 }
@@ -532,10 +532,12 @@ void serialport::start_algorithm()
 
 void serialport::generate_initial_gcodes()
 {
+    Final_Generated_Gcodes.append("G28 W\n");
+    Final_Generated_Gcodes.append("G01 V"+QString::number(_open_door_value)+" F"+QString::number(_v_axis_speed)+"\n");
     Final_Generated_Gcodes.append("G28 ZXYU\n");
     Final_Generated_Gcodes.append("M280 P0 S0\n");
     Final_Generated_Gcodes.append("G90\n");
-    Final_Generated_Gcodes.append("G01 V"+QString::number(_open_door_value)+" F"+QString::number(_v_axis_speed)+"\n");
+
 }
 
 void serialport::generate_select_sampler_gcode(int sampler_type)
@@ -836,28 +838,26 @@ void serialport::generate_discharge_gcode()
 
 void serialport::generate_pick_down_sampler_gcode(int sampler_type)
 {
-    switch(sampler_type)
-    {
-    case 1:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler1_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler1_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-        break;
-    case 2:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler2_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler2_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-        break;
-    case 3:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler3_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler3_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-        break;
-    }
+//    switch(sampler_type)
+//    {
+//    case 1:
+//        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler1_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
+//        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler1_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+//        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+//        break;
+//    case 2:
+//        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler2_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
+//        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler2_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+//        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+//        break;
+//    case 3:
+//        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler3_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
+//        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler3_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+//        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+//        break;
+//    }
 
-
-    Final_Generated_Gcodes.append("G01 Z"+QString::number(_z_axis_offset)+" F"+QString::number(_z_axis_speed)+"\n");
     // go home
-    Final_Generated_Gcodes.append("G28 X\n");
-    Final_Generated_Gcodes.append("G28 Y\n");
+    Final_Generated_Gcodes.append("G28 ZXY\n");
+
 }

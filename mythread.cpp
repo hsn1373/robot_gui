@@ -11,11 +11,12 @@ mythread::mythread(QList<QString> *final_Generated_Gcodes,QSerialPort *serialpor
 
 void mythread::delay()
 {
-    QThread::msleep(500);
+    QThread::msleep(400);
 }
 
 void mythread::writeSerialData()
 {
+    bool res=false;
     for(int i=0;i<_final_Generated_Gcodes->length();i++)
     {
         if(_stop_send_data_flag)
@@ -25,7 +26,9 @@ void mythread::writeSerialData()
         }
         else
         {
+            res=writeDate(_final_Generated_Gcodes->at(i));
             qDebug() << _final_Generated_Gcodes->at(i);
+            qDebug() << res;
             delay();
         }
     }
