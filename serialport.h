@@ -62,6 +62,7 @@ public:
     void generate_go_to_target_gcode(int count,int start_row,int start_column,int sampler_type);
     void generate_discharge_gcode();
     void generate_pick_down_sampler_gcode(int sampler_type);
+    void delay();
     QList<QString> Final_Generated_Gcodes;
 
 signals:
@@ -81,6 +82,7 @@ public slots:
     void set_moves_absolut();
     void relative_move(int axis,double value);
     void home_axis(int axis);
+    bool writeAlgorithmDate();
     bool writeDate(QString val);
     void add_new_move(int source_type,int source_start_point_row_lbl,int source_start_point_col_lbl
                       ,double source_liq_height,int source2_number
@@ -94,6 +96,7 @@ public slots:
     void stop_send_data();
 
 private:
+    bool _stop_send_data_flag;
     bool _is_door_close;
     bool _is_workspace_in;
     double _source_x_position;

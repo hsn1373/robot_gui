@@ -10,6 +10,7 @@ serialport::serialport(QObject *parent) : QObject(parent)
     _serialport = new QSerialPort(this);
 
     _step_counter=0;
+    _stop_send_data_flag=false;
 
     _is_door_close=false;
     _is_workspace_in=true;
@@ -426,6 +427,27 @@ void serialport::home_axis(int axis)
     qDebug() << res;
 }
 
+bool serialport::writeAlgorithmDate()
+{
+    bool res=false;
+    for(int i=0;i<Final_Generated_Gcodes.length();i++)
+    {
+        if(_stop_send_data_flag)
+        {
+            emit finishSendData();
+            break;
+        }
+        else
+        {
+            res=writeDate(Final_Generated_Gcodes.at(i));
+            qDebug() << Final_Generated_Gcodes.at(i);
+            qDebug() << res;
+            delay();
+        }
+    }
+    emit finishSendData();
+}
+
 bool serialport::writeDate(QString val)
 {
     try
@@ -481,7 +503,8 @@ void serialport::sendDataDoneSlot()
 
 void serialport::stop_send_data()
 {
-    emit stopSerialSendData();
+    //emit stopSerialSendData();
+    _stop_send_data_flag=true;
 }
 
 void serialport::start_algorithm()
@@ -527,7 +550,9 @@ void serialport::start_algorithm()
 
 //    for(int i=0;i<Final_Generated_Gcodes.length();i++)
 //        qDebug() << Final_Generated_Gcodes.at(i);
-    emit doWriteSerialData();
+
+    //emit doWriteSerialData();
+    writeAlgorithmDate();
 }
 
 void serialport::generate_initial_gcodes()
@@ -576,8 +601,8 @@ void serialport::generate_pick_tip_gcode(int sampler_type, int count)
     case 1:
         if(count%12!=0)
         {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position-(count*_tip_type1_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type1_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position-((count%12)*_tip_type1_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type1_y_position+((count/12)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         }
         else
@@ -590,8 +615,8 @@ void serialport::generate_pick_tip_gcode(int sampler_type, int count)
     case 2:
         if(count%8!=0)
         {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type2_x_position-(count*_tip_type2_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type2_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type2_x_position-((count%8)*_tip_type2_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type2_y_position+((count/8)*_tip_type2_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         }
         else
@@ -604,8 +629,8 @@ void serialport::generate_pick_tip_gcode(int sampler_type, int count)
     case 3:
         if(count%6!=0)
         {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type3_x_position-(count*_tip_type3_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type3_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type3_x_position-((count%6)*_tip_type3_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type3_y_position+((count/6)*_tip_type3_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         }
         else
@@ -624,14 +649,15 @@ void serialport::generate_go_to_source_type1_gcode(int count, int start_row, int
     if((count+start_column-1)%8!=0)
     {
         Final_Generated_Gcodes.append
-                ("G01 X"+QString::number(_source_x_position-((start_column-1)*_source_x_distance)-(count*_source_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+                ("G01 X"+QString::number(_source_x_position-(((count+start_column-1)%8)*_source_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
+        Final_Generated_Gcodes.append
+                ("G01 Y"+QString::number(_source_y_position+(((count+start_column-1)/8)*_source_y_distance)+((start_row-1)*_source_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
     }
     else
     {
         Final_Generated_Gcodes.append("G01 X"+QString::number(_source_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
         Final_Generated_Gcodes.append
-                ("G01 Y"+QString::number(_source_y_position+((count+start_column-1)/8*_source_y_distance)+((start_row-1)*_source_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+                ("G01 Y"+QString::number(_source_y_position+(((count+start_column-1)/8)*_source_y_distance)+((start_row-1)*_source_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
     }
 
     switch(sampler_type)
@@ -780,8 +806,8 @@ void serialport::generate_go_to_target_gcode(int count, int start_row, int start
     if((count+start_column-1)%12!=0)
     {
         Final_Generated_Gcodes.append
-                ("G01 X"+QString::number(_target_x_position-((start_column-1)*_target_x_distance)-(count*_target_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_target_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+                ("G01 X"+QString::number(_target_x_position-(((count+start_column-1)%12)*_target_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 Y"+QString::number(_target_y_position+(((count+start_column-1)/12)*_target_y_distance)+((start_row-1)*_target_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
         Final_Generated_Gcodes.append("G01 Z"+QString::number(_target_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
     }
     else
@@ -860,4 +886,9 @@ void serialport::generate_pick_down_sampler_gcode(int sampler_type)
     // go home
     Final_Generated_Gcodes.append("G28 ZXY\n");
 
+}
+
+void serialport::delay()
+{
+    QThread::msleep(400);
 }

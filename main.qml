@@ -1435,7 +1435,6 @@ Window {
                         id: btnSetMovesStop
                         width: parent.width * 6/8
                         height: parent.height
-                        enabled: false
                         text: "Stop"
                         highlighted: UIStyle.darkTheme
                         background:  Rectangle {
@@ -3660,6 +3659,66 @@ Window {
                         color: "transparent"
                     }
                 }
+
+            }
+        }
+    }
+
+
+    //*********************************************************
+    //*********************************************************
+    // Progress Popup
+
+    Popup {
+        id: progressPopup
+        implicitHeight: contentItem.implicitHeight
+        //anchors.centerIn: parent
+        x: (parent.width - width) / 2
+        y: 20
+        width: 500
+        height: 200
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        padding: 1
+        background:  Rectangle {
+            radius: 5
+            color: UIStyle.shapeColor3
+            border.color: UIStyle.darkTheme ? '#373564' : '#0a9696'
+            border.width: 1
+        }
+        Frame
+        {
+            width: parent.width
+            height: parent.height
+            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+
+            Column
+            {
+                width: parent.width
+                height: parent.height
+
+                ProgressBar{
+                    id: sendDataProgress
+                    height: parent.height
+                    width: parent.width * 1/3
+                    from:0
+                    to:800
+                    value: 0
+                    Material.accent: UIStyle.darkTheme ?  '#00e676' : '#2e7d32'
+                }
+                Label
+                {
+                    width: parent.width
+                    height: parent.height * 2/3
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    text: "Send Serial Data"
+                    color: UIStyle.portSatusLabelColorClosed
+                    font.family: UIStyle.fontName
+                    font.pixelSize: UIStyle.fontSize_Medium
+                }
+
 
             }
         }
