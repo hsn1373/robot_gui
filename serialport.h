@@ -8,6 +8,7 @@
 #include <QDomDocument>
 #include <QtXml>
 #include "mythread.h"
+#include <QMutex>
 
 class serialport : public QObject
 {
@@ -32,6 +33,8 @@ private:
     QSerialPort::FlowControl _flow_control;
     QList<QObject*> movementList;
 
+    QMutex m_mutex;
+
 
     // Speed
     enum class Speed
@@ -51,7 +54,6 @@ public:
     explicit serialport(QObject *parent = nullptr);
 
     void thread_config();
-    void home_all_axises();
     QStringList getSerialPortsList() const;
     void generate_initial_gcodes();
     void generate_select_sampler_gcode(int sampler_type);
@@ -63,6 +65,9 @@ public:
     void generate_discharge_gcode();
     void generate_pick_down_sampler_gcode(int sampler_type);
     void delay();
+    void readSerialPort();
+
+    //QWriteLocker _lock_write_data;
     QList<QString> Final_Generated_Gcodes;
 
 signals:
@@ -94,6 +99,7 @@ public slots:
     void run_next_step();
     void sendDataDoneSlot();
     void stop_send_data();
+    void home_all_axises();
 
 private:
     bool _stop_send_data_flag;
@@ -183,7 +189,9 @@ private:
     double _open_door_value;
     double _out_workspace_value;
     QString _pick_sampler_routine;
+    int _serial_delay;
     int _step_counter;
+    int _tip_counter;
 
 
 };

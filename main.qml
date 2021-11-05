@@ -268,6 +268,25 @@ Window {
 
             Button
             {
+                id: btnHomeAllAxis
+                width: parent.width * 1/3 - 6
+                height: parent.height
+                text: "Home All"
+                highlighted: UIStyle.darkTheme
+                font.pixelSize: UIStyle.fontSize_Big
+                background:  Rectangle {
+                    radius: 5
+                    color: UIStyle.themeBlue
+                }
+                onClicked:
+                {
+                    serialPort.home_all_axises()
+                }
+                onHoveredChanged: btnHomeAllAxis.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
+            }
+
+            Button
+            {
                 id: btnExit
                 width: parent.width * 1/3 - 6
                 height: parent.height
@@ -283,13 +302,6 @@ Window {
                     Qt.callLater(Qt.quit)
                 }
                 onHoveredChanged: btnExit.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
-            }
-
-            Rectangle
-            {
-                width: parent.width * 1/3 - 6
-                height: parent.height
-                color: "transparent"
             }
         }
 
@@ -1435,6 +1447,7 @@ Window {
                         id: btnSetMovesStop
                         width: parent.width * 6/8
                         height: parent.height
+                        enabled: false
                         text: "Stop"
                         highlighted: UIStyle.darkTheme
                         background:  Rectangle {
@@ -2223,6 +2236,7 @@ Window {
                         id: btnManulaMovement_Up100
                         width: parent.width
                         height: parent.height * 1/7
+                        enabled:false
                         text: "100"
                         highlighted: UIStyle.darkTheme
                         background:  Rectangle {
@@ -2326,6 +2340,7 @@ Window {
                         width: parent.width
                         height: parent.height * 1/7
                         text: "-100"
+                        enabled:false
                         highlighted: UIStyle.darkTheme
                         background:  Rectangle {
                             radius: 9

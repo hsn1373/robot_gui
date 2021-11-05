@@ -1,8 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>homePage.qml</file>
-        <file>settingPage.qml</file>
         <file>Style/UIStyle.qml</file>
         <file>Images/Launcher_page.jpg</file>
         <file>Style/qmldir</file>

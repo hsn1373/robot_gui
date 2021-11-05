@@ -10,6 +10,7 @@ serialport::serialport(QObject *parent) : QObject(parent)
     _serialport = new QSerialPort(this);
 
     _step_counter=0;
+    _tip_counter=0;
     _stop_send_data_flag=false;
 
     _is_door_close=false;
@@ -22,7 +23,7 @@ serialport::serialport(QObject *parent) : QObject(parent)
 
 void serialport::thread_config()
 {
-    worker = new mythread(&Final_Generated_Gcodes,_serialport);
+    worker = new mythread(&Final_Generated_Gcodes,_serialport,&_serial_delay);
     worker->moveToThread(&workerThread);
     connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
     connect(this, &serialport::doWriteSerialData, worker, &mythread::writeSerialData);
@@ -33,6 +34,7 @@ void serialport::thread_config()
 
 void serialport::home_all_axises()
 {
+    delay();
     bool res=writeDate("G28 WVZXY\n");
     qDebug() << res;
 }
@@ -285,6 +287,9 @@ void serialport::load_backend_params()
     _out_workspace_value=firstlevelchildTag.firstChild().toText().data().toDouble(&ok);
     firstlevelchildTag=firstlevelchildTag.nextSibling().toElement();
     _pick_sampler_routine=firstlevelchildTag.firstChild().toText().data();
+    firstlevelchildTag=firstlevelchildTag.nextSibling().toElement();
+    _serial_delay=firstlevelchildTag.firstChild().toText().data().toInt(&ok);
+    qDebug() << "delaaaay" << _serial_delay;
 }
 
 QStringList serialport::getSerialPortsList() const
@@ -308,7 +313,6 @@ void serialport::open_port()
     if(_serialport->open(QIODevice::ReadWrite)) {
         _serialport->clear();
         emit portOpenSignal();
-        home_all_axises();
     } else {
         qCritical() << "Serial port ERROR!";
         emit portNotOpenSignal();
@@ -322,7 +326,7 @@ void serialport::close_open_door()
 
     if(_is_door_close)
     {
-        res=writeDate("G28 V\n");
+        res=writeDate("G01 V2 F"+QString::number(_v_axis_speed)+"\n");
         _is_door_close=!_is_door_close;
     }
     else
@@ -339,7 +343,7 @@ void serialport::in_out_workspace()
 
     if(_is_workspace_in)
     {
-        res=writeDate("G28 V\n");
+        res=writeDate("G01 V2 F"+QString::number(_v_axis_speed)+"\n");
         _is_door_close=!_is_door_close;
         res=writeDate("G01 W"+QString::number(_out_workspace_value)+" F"+QString::number(_w_axis_speed)+"\n");
         _is_workspace_in=!_is_workspace_in;
@@ -432,18 +436,25 @@ bool serialport::writeAlgorithmDate()
     bool res=false;
     for(int i=0;i<Final_Generated_Gcodes.length();i++)
     {
-        if(_stop_send_data_flag)
-        {
-            emit finishSendData();
-            break;
-        }
-        else
-        {
-            res=writeDate(Final_Generated_Gcodes.at(i));
-            qDebug() << Final_Generated_Gcodes.at(i);
-            qDebug() << res;
-            delay();
-        }
+//        if(_stop_send_data_flag)
+//        {
+//            emit finishSendData();
+//            break;
+//        }
+//        else
+//        {
+//            res=writeDate(Final_Generated_Gcodes.at(i));
+//            qDebug() << Final_Generated_Gcodes.at(i);
+//            qDebug() << res;
+//            delay();
+//        }
+
+        //res=writeDate(Final_Generated_Gcodes.at(i));
+        _serialport->write(Final_Generated_Gcodes.at(i).toUtf8());
+        qDebug() << Final_Generated_Gcodes.at(i);
+        qDebug() << res;
+        delay();
+        readSerialPort();
     }
     emit finishSendData();
 }
@@ -453,6 +464,7 @@ bool serialport::writeDate(QString val)
     try
     {
         _serialport->write(val.toUtf8());
+        _serialport->flush();
         return true;
     }
     catch (exception ex)
@@ -471,7 +483,8 @@ void serialport::add_new_move(int source_type, int source_start_point_row_lbl, i
                                           source2_number,
                                           target_start_point_row_lbl,
                                           target_start_point_col_lbl,
-                                          number_of_units,sampler_type);
+                                          number_of_units,
+                                          sampler_type);
     movementList.push_back(new_movement);
 }
 
@@ -509,12 +522,26 @@ void serialport::stop_send_data()
 
 void serialport::start_algorithm()
 {
+
+//    Final_Generated_Gcodes.append("G01 X10 F"+QString::number(_x_axis_speed)+"\n");
+//    Final_Generated_Gcodes.append("G01 Y10 F"+QString::number(_y_axis_speed)+"\n");
+//    Final_Generated_Gcodes.append("G01 X40 F"+QString::number(_x_axis_speed)+"\n");
+//    Final_Generated_Gcodes.append("G01 Y40 F"+QString::number(_y_axis_speed)+"\n");
+//    Final_Generated_Gcodes.append("G01 X60 F"+QString::number(_x_axis_speed)+"\n");
+//    Final_Generated_Gcodes.append("G01 Y60 F"+QString::number(_y_axis_speed)+"\n");
+//    Final_Generated_Gcodes.append("G01 X80 F"+QString::number(_x_axis_speed)+"\n");
+//    Final_Generated_Gcodes.append("G01 Y80 F"+QString::number(_y_axis_speed)+"\n");
+//    Final_Generated_Gcodes.append("G01 X100 F"+QString::number(_x_axis_speed)+"\n");
+//    Final_Generated_Gcodes.append("G01 Y100 F"+QString::number(_y_axis_speed)+"\n");
+
+
+    //initial gcode
+    generate_initial_gcodes();
+
     for(int i=0;i<movementList.length();i++)
     {
         movement *m = dynamic_cast<movement *>(movementList.at(i));
 
-        //initial gcode
-        generate_initial_gcodes();
 
         // go to pick sampler
         //generate_select_sampler_gcode(m->samplerType());
@@ -526,7 +553,7 @@ void serialport::start_algorithm()
         for(int j=0;j<m->numbrerOfUnits();j++)
         {
             // go to pick tip
-            generate_pick_tip_gcode(m->samplerType(),j);
+            generate_pick_tip_gcode(m->samplerType(),_tip_counter+j);
 
             if(m->sourceType()==1)
                 // go to source 1
@@ -543,16 +570,16 @@ void serialport::start_algorithm()
             generate_discharge_gcode();
 
         }
+        _tip_counter+=m->numbrerOfUnits();
 
         // go to pick down sampler
-        generate_pick_down_sampler_gcode(m->samplerType());
+        //generate_pick_down_sampler_gcode(m->samplerType());
     }
 
-//    for(int i=0;i<Final_Generated_Gcodes.length();i++)
-//        qDebug() << Final_Generated_Gcodes.at(i);
+    generate_go_home_gcodes();
 
-    //emit doWriteSerialData();
-    writeAlgorithmDate();
+    emit doWriteSerialData();
+    //writeAlgorithmDate();
 }
 
 void serialport::generate_initial_gcodes()
@@ -562,7 +589,6 @@ void serialport::generate_initial_gcodes()
     Final_Generated_Gcodes.append("G28 ZXYU\n");
     Final_Generated_Gcodes.append("M280 P0 S0\n");
     Final_Generated_Gcodes.append("G90\n");
-
 }
 
 void serialport::generate_select_sampler_gcode(int sampler_type)
@@ -864,31 +890,38 @@ void serialport::generate_discharge_gcode()
 
 void serialport::generate_pick_down_sampler_gcode(int sampler_type)
 {
-//    switch(sampler_type)
-//    {
-//    case 1:
-//        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler1_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-//        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler1_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
-//        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-//        break;
-//    case 2:
-//        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler2_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-//        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler2_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
-//        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-//        break;
-//    case 3:
-//        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler3_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-//        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler3_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
-//        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-//        break;
-//    }
+    switch(sampler_type)
+    {
+    case 1:
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler1_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler1_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+        break;
+    case 2:
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler2_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler2_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+        break;
+    case 3:
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler3_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler3_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+        break;
+    }
+}
 
-    // go home
+void serialport::generate_go_home_gcodes()
+{
+    //go home
     Final_Generated_Gcodes.append("G28 ZXY\n");
-
 }
 
 void serialport::delay()
 {
-    QThread::msleep(400);
+    QThread::msleep(_serial_delay);
+}
+
+void serialport::readSerialPort()
+{
+    _serialport->readAll();
 }
