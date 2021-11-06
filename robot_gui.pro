@@ -40,3 +40,5 @@ HEADERS += \
     movement.h \
     mythread.h \
     serialport.h
+
+DISTFILES +=

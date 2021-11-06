@@ -64,6 +64,7 @@ public:
     void generate_go_to_target_gcode(int count,int start_row,int start_column,int sampler_type);
     void generate_discharge_gcode();
     void generate_pick_down_sampler_gcode(int sampler_type);
+    void generate_go_home_gcodes();
     void delay();
     void readSerialPort();
 
@@ -189,7 +190,8 @@ private:
     double _open_door_value;
     double _out_workspace_value;
     QString _pick_sampler_routine;
-    int _serial_delay;
+    int _dwell;
+    double _serial_delay;
     int _step_counter;
     int _tip_counter;
 

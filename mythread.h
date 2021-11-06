@@ -15,7 +15,7 @@ class mythread : public QObject
 {
     Q_OBJECT
 public:
-    explicit mythread(QList<QString> *,QSerialPort *,int *,QObject *parent = nullptr);
+    explicit mythread(QList<QString> *,QSerialPort *,double *,QObject *parent = nullptr);
     void delay();
 
 signals:
@@ -23,7 +23,7 @@ signals:
 
 private:
     bool _stop_send_data_flag;
-    bool _serial_delay;
+    double *_serial_delay;
     QSerialPort *_serialport;
     QList<QString> *_final_Generated_Gcodes;
     QMutex m_mutex;

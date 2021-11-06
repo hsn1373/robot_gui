@@ -2633,16 +2633,47 @@ Window {
                             font.family: UIStyle.fontName
                         }
 
-                        TextField
+                        Column
                         {
-                            id: txt_addNewMove_Source_liq_height
                             width: parent.width * 3/5
                             height: parent.height
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                            text: "5.5"
-                            Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
-                            font.family: UIStyle.fontName
+                            Rectangle
+                            {
+                                width: parent.width
+                                height: parent.height * 1/4
+                                color: "transparent"
+                            }
+                            SpinBox {
+                                id: txt_addNewMove_Source_liq_height
+                                from: 0
+                                value: 5000
+                                to: 100 * 1000
+                                stepSize: 10
+                                width: parent.width
+                                height: parent.height * 1/2
+
+                                property int decimals: 2
+                                property real realValue: value / 100
+
+                                validator: DoubleValidator {
+                                    bottom: Math.min(txt_addNewMove_Source_liq_height.from, txt_addNewMove_Source_liq_height.to)
+                                    top:  Math.max(txt_addNewMove_Source_liq_height.from, txt_addNewMove_Source_liq_height.to)
+                                }
+
+                                textFromValue: function(value, locale) {
+                                    return Number(value / 100).toLocaleString(locale, 'f', txt_addNewMove_Source_liq_height.decimals)
+                                }
+
+                                valueFromText: function(text, locale) {
+                                    return Number.fromLocaleString(locale, text) * 100
+                                }
+                            }
+                            Rectangle
+                            {
+                                width: parent.width
+                                height: parent.height * 1/4
+                                color: "transparent"
+                            }
                         }
                     }
 
@@ -2772,7 +2803,7 @@ Window {
                             height: parent.height
                             from:1
                             to:96
-                            value: 2
+                            value: 1
                         }
                     }
 
@@ -2868,7 +2899,7 @@ Window {
                     serialPort.add_new_move(cmb_addNewMove_Source_sourceType.currentIndex+1,
                                             cmb_addNewMove_Source_Start_row.currentIndex+1,
                                             cmb_addNewMove_Source_Start_column.currentIndex+1,
-                                            txt_addNewMove_Source_liq_height.text,
+                                            txt_addNewMove_Source_liq_height.realValue,
                                             cmb_addNewMove_Source2_source_number.currentIndex+1,
                                             cmb_addNewMove_Target_Start_row.currentIndex+1,
                                             cmb_addNewMove_Target_Start_column.currentIndex+1,

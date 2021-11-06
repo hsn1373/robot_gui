@@ -288,8 +288,9 @@ void serialport::load_backend_params()
     firstlevelchildTag=firstlevelchildTag.nextSibling().toElement();
     _pick_sampler_routine=firstlevelchildTag.firstChild().toText().data();
     firstlevelchildTag=firstlevelchildTag.nextSibling().toElement();
-    _serial_delay=firstlevelchildTag.firstChild().toText().data().toInt(&ok);
-    qDebug() << "delaaaay" << _serial_delay;
+    _serial_delay=firstlevelchildTag.firstChild().toText().data().toDouble(&ok);
+    firstlevelchildTag=firstlevelchildTag.nextSibling().toElement();
+    _dwell=firstlevelchildTag.firstChild().toText().data().toInt(&ok);
 }
 
 QStringList serialport::getSerialPortsList() const
@@ -522,19 +523,6 @@ void serialport::stop_send_data()
 
 void serialport::start_algorithm()
 {
-
-//    Final_Generated_Gcodes.append("G01 X10 F"+QString::number(_x_axis_speed)+"\n");
-//    Final_Generated_Gcodes.append("G01 Y10 F"+QString::number(_y_axis_speed)+"\n");
-//    Final_Generated_Gcodes.append("G01 X40 F"+QString::number(_x_axis_speed)+"\n");
-//    Final_Generated_Gcodes.append("G01 Y40 F"+QString::number(_y_axis_speed)+"\n");
-//    Final_Generated_Gcodes.append("G01 X60 F"+QString::number(_x_axis_speed)+"\n");
-//    Final_Generated_Gcodes.append("G01 Y60 F"+QString::number(_y_axis_speed)+"\n");
-//    Final_Generated_Gcodes.append("G01 X80 F"+QString::number(_x_axis_speed)+"\n");
-//    Final_Generated_Gcodes.append("G01 Y80 F"+QString::number(_y_axis_speed)+"\n");
-//    Final_Generated_Gcodes.append("G01 X100 F"+QString::number(_x_axis_speed)+"\n");
-//    Final_Generated_Gcodes.append("G01 Y100 F"+QString::number(_y_axis_speed)+"\n");
-
-
     //initial gcode
     generate_initial_gcodes();
 
@@ -597,18 +585,15 @@ void serialport::generate_select_sampler_gcode(int sampler_type)
     switch(sampler_type)
     {
     case 1:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler1_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler1_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler1_x_position)+" Y"+QString::number(_sampler1_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         break;
     case 2:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler2_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler2_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler2_x_position)+" Y"+QString::number(_sampler2_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         break;
     case 3:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler3_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler3_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler3_x_position)+" Y"+QString::number(_sampler3_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         break;
     }
@@ -627,42 +612,36 @@ void serialport::generate_pick_tip_gcode(int sampler_type, int count)
     case 1:
         if(count%12!=0)
         {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position-((count%12)*_tip_type1_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type1_y_position+((count/12)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position-((count%12)*_tip_type1_x_distance))+" Y"+QString::number(_tip_type1_y_position+((count/12)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         }
         else
         {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type1_y_position+((count/12)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position)+" Y"+QString::number(_tip_type1_y_position+((count/12)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         }
         break;
     case 2:
         if(count%8!=0)
         {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type2_x_position-((count%8)*_tip_type2_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type2_y_position+((count/8)*_tip_type2_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type2_x_position-((count%8)*_tip_type2_x_distance))+" Y"+QString::number(_tip_type2_y_position+((count/8)*_tip_type2_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         }
         else
         {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type2_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type2_y_position+((count/8)*_tip_type2_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type2_x_position)+" Y"+QString::number(_tip_type2_y_position+((count/8)*_tip_type2_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         }
         break;
     case 3:
         if(count%6!=0)
         {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type3_x_position-((count%6)*_tip_type3_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type3_y_position+((count/6)*_tip_type3_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type3_x_position-((count%6)*_tip_type3_x_distance))+" Y"+QString::number(_tip_type3_y_position+((count/6)*_tip_type3_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         }
         else
         {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type3_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Y"+QString::number(_tip_type3_y_position+((count/6)*_tip_type3_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type3_x_position)+" Y"+QString::number(_tip_type3_y_position+((count/6)*_tip_type3_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         }
         break;
@@ -675,15 +654,16 @@ void serialport::generate_go_to_source_type1_gcode(int count, int start_row, int
     if((count+start_column-1)%8!=0)
     {
         Final_Generated_Gcodes.append
-                ("G01 X"+QString::number(_source_x_position-(((count+start_column-1)%8)*_source_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append
-                ("G01 Y"+QString::number(_source_y_position+(((count+start_column-1)/8)*_source_y_distance)+((start_row-1)*_source_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+                ("G01 X"+QString::number(_source_x_position-(((count+start_column-1)%8)*_source_x_distance))+
+                 " Y"+QString::number(_source_y_position+(((count+start_column-1)/8)*_source_y_distance)+((start_row-1)*_source_y_distance))+
+                 " F"+QString::number(_y_axis_speed)+"\n");
     }
     else
     {
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
         Final_Generated_Gcodes.append
-                ("G01 Y"+QString::number(_source_y_position+(((count+start_column-1)/8)*_source_y_distance)+((start_row-1)*_source_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+                ("G01 X"+QString::number(_source_x_position)+
+                 " Y"+QString::number(_source_y_position+(((count+start_column-1)/8)*_source_y_distance)+((start_row-1)*_source_y_distance))+
+                 " F"+QString::number(_y_axis_speed)+"\n");
     }
 
     switch(sampler_type)
@@ -700,6 +680,7 @@ void serialport::generate_go_to_source_type1_gcode(int count, int start_row, int
     }
 
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_source_z_max-source_liq_height)+" F"+QString::number(_z_axis_speed)+"\n");
+    Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
     switch(sampler_type)
     {
@@ -714,6 +695,8 @@ void serialport::generate_go_to_source_type1_gcode(int count, int start_row, int
         break;
     }
 
+
+    Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_z_axis_offset)+" F"+QString::number(_z_axis_speed)+"\n");
 }
 
@@ -722,56 +705,43 @@ void serialport::generate_go_to_source_type2_gcode(int source_num,int sampler_ty
     switch(source_num)
     {
     case 1:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit1_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit1_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit1_x_position)+" Y"+QString::number(_source2_kit1_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 2:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit2_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit2_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit2_x_position)+" Y"+QString::number(_source2_kit2_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 3:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit3_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit3_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit3_x_position)+" Y"+QString::number(_source2_kit3_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 4:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit4_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit4_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit4_x_position)+" Y"+QString::number(_source2_kit4_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 5:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit5_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit5_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit5_x_position)+" Y"+QString::number(_source2_kit5_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 6:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit6_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit6_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit6_x_position)+" Y"+QString::number(_source2_kit6_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 7:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit7_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit7_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit7_x_position)+" Y"+QString::number(_source2_kit7_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 8:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit8_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit8_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit8_x_position)+" Y"+QString::number(_source2_kit8_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 9:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit9_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit9_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit9_x_position)+" Y"+QString::number(_source2_kit9_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 10:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit10_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit10_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit10_x_position)+" Y"+QString::number(_source2_kit10_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 11:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit11_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit11_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit11_x_position)+" Y"+QString::number(_source2_kit11_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 12:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit12_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit12_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit12_x_position)+" Y"+QString::number(_source2_kit12_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     case 13:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit13_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_source2_kit13_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_source2_kit13_x_position)+" Y"+QString::number(_source2_kit13_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
     }
 
@@ -810,6 +780,7 @@ void serialport::generate_go_to_source_type2_gcode(int source_num,int sampler_ty
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_source2_type3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
             break;
     }
+    Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
     switch(sampler_type)
     {
@@ -823,6 +794,7 @@ void serialport::generate_go_to_source_type2_gcode(int source_num,int sampler_ty
         Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
         break;
     }
+    Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_z_axis_offset)+" F"+QString::number(_z_axis_speed)+"\n");
 }
@@ -832,17 +804,15 @@ void serialport::generate_go_to_target_gcode(int count, int start_row, int start
     if((count+start_column-1)%12!=0)
     {
         Final_Generated_Gcodes.append
-                ("G01 X"+QString::number(_target_x_position-(((count+start_column-1)%12)*_target_x_distance))+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_target_y_position+(((count+start_column-1)/12)*_target_y_distance)+((start_row-1)*_target_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+                ("G01 X"+QString::number(_target_x_position-(((count+start_column-1)%12)*_target_x_distance))+" Y"+QString::number(_target_y_position+(((count+start_column-1)/12)*_target_y_distance)+((start_row-1)*_target_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
         Final_Generated_Gcodes.append("G01 Z"+QString::number(_target_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
     }
     else
     {
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_target_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append
-                ("G01 Y"+QString::number(_target_y_position+((count+start_column-1)/12*_target_y_distance)+((start_row-1)*_target_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_target_x_position)+" Y"+QString::number(_target_y_position+((count+start_column-1)/12*_target_y_distance)+((start_row-1)*_target_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
         Final_Generated_Gcodes.append("G01 Z"+QString::number(_target_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
     }
+    Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
     switch(sampler_type)
     {
@@ -857,6 +827,7 @@ void serialport::generate_go_to_target_gcode(int count, int start_row, int start
         break;
     }
 
+    Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_z_axis_offset)+" F"+QString::number(_z_axis_speed)+"\n");
 
     switch(sampler_type)
@@ -875,15 +846,18 @@ void serialport::generate_go_to_target_gcode(int count, int start_row, int start
 
 void serialport::generate_discharge_gcode()
 {
-    Final_Generated_Gcodes.append("G01 X"+QString::number(_discharge_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-    Final_Generated_Gcodes.append("G01 Y"+QString::number(_discharge_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+    Final_Generated_Gcodes.append("G01 X"+QString::number(_discharge_x_position)+" Y"+QString::number(_discharge_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_discharge_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+    Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
     Final_Generated_Gcodes.append("G01 U1 F"+QString::number(_u_axis_speed)+"\n");
     Final_Generated_Gcodes.append("M280 P0 S90\n");
+    Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
     Final_Generated_Gcodes.append("G01 U"+QString::number(_discharge_u_position)+" F"+QString::number(_u_axis_speed)+"\n");
+    Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
     Final_Generated_Gcodes.append("G01 U1 F"+QString::number(_u_axis_speed)+"\n");
     Final_Generated_Gcodes.append("M280 P0 S0\n");
+    Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_z_axis_offset)+" F"+QString::number(_z_axis_speed)+"\n");
 }
@@ -893,18 +867,15 @@ void serialport::generate_pick_down_sampler_gcode(int sampler_type)
     switch(sampler_type)
     {
     case 1:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler1_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler1_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler1_x_position)+" Y"+QString::number(_sampler1_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         break;
     case 2:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler2_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler2_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler2_x_position)+" Y"+QString::number(_sampler2_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         break;
     case 3:
-        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler3_x_position)+" F"+QString::number(_x_axis_speed)+"\n");
-        Final_Generated_Gcodes.append("G01 Y"+QString::number(_sampler3_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_sampler3_x_position)+" Y"+QString::number(_sampler3_y_position)+" F"+QString::number(_y_axis_speed)+"\n");
         Final_Generated_Gcodes.append("G01 Z"+QString::number(_sampler3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         break;
     }

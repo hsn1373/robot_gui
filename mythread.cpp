@@ -2,7 +2,7 @@
 
 using namespace std;
 
-mythread::mythread(QList<QString> *final_Generated_Gcodes,QSerialPort *serialport,int *serial_delay,QObject *parent) : QObject(parent)
+mythread::mythread(QList<QString> *final_Generated_Gcodes,QSerialPort *serialport,double *serial_delay,QObject *parent) : QObject(parent)
 {
     m_mutex.lock();
     this->_final_Generated_Gcodes=final_Generated_Gcodes;
@@ -16,7 +16,7 @@ mythread::mythread(QList<QString> *final_Generated_Gcodes,QSerialPort *serialpor
 
 void mythread::delay()
 {
-    QThread::msleep(500);
+    QThread::msleep(*_serial_delay);
 }
 
 void mythread::writeSerialData()
