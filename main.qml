@@ -2646,7 +2646,7 @@ Window {
                             SpinBox {
                                 id: txt_addNewMove_Source_liq_height
                                 from: 0
-                                value: 5000
+                                value: 1000
                                 to: 100 * 1000
                                 stepSize: 10
                                 width: parent.width

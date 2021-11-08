@@ -610,14 +610,14 @@ void serialport::generate_pick_tip_gcode(int sampler_type, int count)
     switch(sampler_type)
     {
     case 1:
-        if(count%12!=0)
+        if(count%8!=0)
         {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position-((count%12)*_tip_type1_x_distance))+" Y"+QString::number(_tip_type1_y_position+((count/12)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position-((count%8)*_tip_type1_x_distance))+" Y"+QString::number(_tip_type1_y_position+((count/8)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         }
         else
         {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position)+" Y"+QString::number(_tip_type1_y_position+((count/12)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position)+" Y"+QString::number(_tip_type1_y_position+((count/8)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
             Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
         }
         break;
