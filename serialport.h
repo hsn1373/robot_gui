@@ -14,6 +14,11 @@ class serialport : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList serial_ports_list READ getSerialPortsList NOTIFY serialPortsListChanged)
+    Q_PROPERTY(int sourceCurrentRow READ sourceCurrentRow WRITE setSourceCurrentRow NOTIFY sourceCurrentRowChanged)
+    Q_PROPERTY(int sourceCurrentCol READ sourceCurrentCol WRITE setSourceCurrentCol NOTIFY sourceCurrentColChanged)
+    Q_PROPERTY(int targetCurrentRow READ targetCurrentRow WRITE setTargetCurrentRow NOTIFY targetCurrentRowChanged)
+    Q_PROPERTY(int targetCurrentCol READ targetCurrentCol WRITE setTargetCurrentCol NOTIFY targetCurrentColChanged)
+
 
 private:
     QSerialPort *_serialport;            // Object for communicate with serial port
@@ -32,8 +37,6 @@ private:
     QSerialPort::Direction _direction;
     QSerialPort::FlowControl _flow_control;
     QList<QObject*> movementList;
-
-    QMutex m_mutex;
 
 
     // Speed
@@ -70,6 +73,10 @@ public:
 
     //QWriteLocker _lock_write_data;
     QList<QString> Final_Generated_Gcodes;
+    QList<int> source_active_pos_rows;
+    QList<int> source_active_pos_cols;
+    QList<int> target_active_pos_rows;
+    QList<int> target_active_pos_cols;
 
 signals:
     void serialPortsListChanged();
@@ -78,9 +85,22 @@ signals:
     void dataSent();
     void doWriteSerialData();
     void finishSendData();
+    void finishOneMove();
     void stopSerialSendData();
+    void sourceCurrentRowChanged();
+    void sourceCurrentColChanged();
+    void targetCurrentRowChanged();
+    void targetCurrentColChanged();
 
 public slots:
+    int sourceCurrentRow();
+    void setSourceCurrentRow(int value);
+    int sourceCurrentCol();
+    void setSourceCurrentCol(int value);
+    int targetCurrentRow();
+    void setTargetCurrentRow(int value);
+    int targetCurrentCol();
+    void setTargetCurrentCol(int value);
     void open_port();
     void close_open_door();
     void in_out_workspace();
@@ -99,6 +119,7 @@ public slots:
     void clear_moves();
     void run_next_step();
     void sendDataDoneSlot();
+    void oneMoveDoneSlot();
     void stop_send_data();
     void home_all_axises();
 
@@ -194,8 +215,11 @@ private:
     double _serial_delay;
     int _step_counter;
     int _tip_counter;
-
-
+    int _source_current_row;
+    int _source_current_col;
+    int _target_current_row;
+    int _target_current_col;
+    int _move_counter;
 };
 
 #endif // SERIALPORT_H

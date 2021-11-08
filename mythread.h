@@ -20,13 +20,13 @@ public:
 
 signals:
     void sendDataDone();
+    void oneMoveDone();
 
 private:
     bool _stop_send_data_flag;
     double *_serial_delay;
     QSerialPort *_serialport;
     QList<QString> *_final_Generated_Gcodes;
-    QMutex m_mutex;
 
 
 public slots:

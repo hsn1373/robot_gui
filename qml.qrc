@@ -6,5 +6,9 @@
         <file>Style/qmldir</file>
         <file>Images/2.png</file>
         <file>Images/3.png</file>
+        <file>Images/4.jpg</file>
+        <file>Images/5.jpg</file>
+        <file>Splash.qml</file>
+        <file>Images/6.jpg</file>
     </qresource>
 </RCC>

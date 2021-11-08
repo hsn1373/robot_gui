@@ -135,5 +135,7 @@
 	<openDoorValue>10.0</openDoorValue>
 	<outWorkspaceValue>10.0</outWorkspaceValue>
 	<pickSamplerRoutine>G01 x10\n</pickSamplerRoutine>
+        <serialDelay>500.0</serialDelay>
+        <dwell>100.0</dwell>
     </mainParams>
 </BackendParams>

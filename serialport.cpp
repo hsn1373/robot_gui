@@ -11,6 +11,7 @@ serialport::serialport(QObject *parent) : QObject(parent)
 
     _step_counter=0;
     _tip_counter=0;
+    _move_counter=0;
     _stop_send_data_flag=false;
 
     _is_door_close=false;
@@ -29,6 +30,7 @@ void serialport::thread_config()
     connect(this, &serialport::doWriteSerialData, worker, &mythread::writeSerialData);
     connect(this, &serialport::stopSerialSendData, worker, &mythread::stopWriteSerialData);
     connect(worker, &mythread::sendDataDone, this, &serialport::sendDataDoneSlot);
+    connect(worker, &mythread::oneMoveDone, this, &serialport::oneMoveDoneSlot);
     workerThread.start();
 }
 
@@ -37,6 +39,8 @@ void serialport::home_all_axises()
     delay();
     bool res=writeDate("G28 WVZXY\n");
     qDebug() << res;
+    if(!_is_door_close)
+        _is_door_close=true;
 }
 
 void serialport::load_backend_params()
@@ -493,6 +497,11 @@ void serialport::clear_moves()
 {
     movementList.clear();
     Final_Generated_Gcodes.clear();
+    source_active_pos_cols.clear();
+    source_active_pos_rows.clear();
+    target_active_pos_cols.clear();
+    target_active_pos_rows .clear();
+    _move_counter=0;
     _step_counter=0;
 }
 
@@ -513,6 +522,17 @@ void serialport::run_next_step()
 void serialport::sendDataDoneSlot()
 {
     emit finishSendData();
+}
+
+void serialport::oneMoveDoneSlot()
+{
+    _source_current_col=source_active_pos_cols.at(_move_counter);
+    _source_current_row=source_active_pos_rows.at(_move_counter);
+    _target_current_col=target_active_pos_cols.at(_move_counter);
+    _target_current_row=target_active_pos_rows.at(_move_counter);
+    qDebug() << _source_current_col << _source_current_row << _target_current_col << _target_current_row;
+    _move_counter++;
+    emit finishOneMove();
 }
 
 void serialport::stop_send_data()
@@ -657,6 +677,9 @@ void serialport::generate_go_to_source_type1_gcode(int count, int start_row, int
                 ("G01 X"+QString::number(_source_x_position-(((count+start_column-1)%8)*_source_x_distance))+
                  " Y"+QString::number(_source_y_position+(((count+start_column-1)/8)*_source_y_distance)+((start_row-1)*_source_y_distance))+
                  " F"+QString::number(_y_axis_speed)+"\n");
+
+        source_active_pos_cols.append(((count+start_column-1)%8));
+        source_active_pos_rows.append(((count+start_column-1)/8)+(start_row-1));
     }
     else
     {
@@ -664,6 +687,10 @@ void serialport::generate_go_to_source_type1_gcode(int count, int start_row, int
                 ("G01 X"+QString::number(_source_x_position)+
                  " Y"+QString::number(_source_y_position+(((count+start_column-1)/8)*_source_y_distance)+((start_row-1)*_source_y_distance))+
                  " F"+QString::number(_y_axis_speed)+"\n");
+
+        source_active_pos_cols.append(0);
+        source_active_pos_rows.append(((count+start_column-1)/8)+(start_row-1));
+
     }
 
     switch(sampler_type)
@@ -806,11 +833,20 @@ void serialport::generate_go_to_target_gcode(int count, int start_row, int start
         Final_Generated_Gcodes.append
                 ("G01 X"+QString::number(_target_x_position-(((count+start_column-1)%12)*_target_x_distance))+" Y"+QString::number(_target_y_position+(((count+start_column-1)/12)*_target_y_distance)+((start_row-1)*_target_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
         Final_Generated_Gcodes.append("G01 Z"+QString::number(_target_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+
+        target_active_pos_cols.append((count+start_column-1)%12);
+        target_active_pos_rows.append(((count+start_column-1)/12)+(start_row-1));
+
     }
     else
     {
         Final_Generated_Gcodes.append("G01 X"+QString::number(_target_x_position)+" Y"+QString::number(_target_y_position+((count+start_column-1)/12*_target_y_distance)+((start_row-1)*_target_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
         Final_Generated_Gcodes.append("G01 Z"+QString::number(_target_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+
+
+        target_active_pos_cols.append(0);
+        target_active_pos_rows.append(((count+start_column-1)/12)+(start_row-1));
+
     }
     Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
@@ -860,6 +896,7 @@ void serialport::generate_discharge_gcode()
     Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_z_axis_offset)+" F"+QString::number(_z_axis_speed)+"\n");
+    Final_Generated_Gcodes.append("fin");
 }
 
 void serialport::generate_pick_down_sampler_gcode(int sampler_type)
@@ -895,4 +932,44 @@ void serialport::delay()
 void serialport::readSerialPort()
 {
     _serialport->readAll();
+}
+
+int serialport::sourceCurrentRow()
+{
+    return _source_current_row;
+}
+
+void serialport::setSourceCurrentRow(int value)
+{
+    _source_current_row=value;
+}
+
+int serialport::sourceCurrentCol()
+{
+    return _source_current_col;
+}
+
+void serialport::setSourceCurrentCol(int value)
+{
+    _source_current_col=value;
+}
+
+int serialport::targetCurrentRow()
+{
+    return _target_current_row;
+}
+
+void serialport::setTargetCurrentRow(int value)
+{
+    _target_current_row=value;
+}
+
+int serialport::targetCurrentCol()
+{
+    return _target_current_col;
+}
+
+void serialport::setTargetCurrentCol(int value)
+{
+    _target_current_col=value;
 }

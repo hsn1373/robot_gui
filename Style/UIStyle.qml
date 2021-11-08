@@ -78,6 +78,8 @@ QtObject {
     // Yellow
     readonly property color colorYellow: "#FFEB3B"
 
+    // white
+    readonly property color colorWhite: "#FFFFFF"
 
     // Light/dark versions of the colors.
     readonly property color background: darkTheme? '#1e2126':'#ffffff'
