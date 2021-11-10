@@ -2921,7 +2921,7 @@ Window {
                                 border.color: UIStyle.borderGrey
                             }
 
-                            model: ["Sampler-1"]
+                            model: ["Sampler-1","Sampler-2","Sampler-3"]
                             onActivated: {
                                 this.displayText = this.currentText
                             }
