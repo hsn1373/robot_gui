@@ -37,7 +37,7 @@ void serialport::thread_config()
 void serialport::home_all_axises()
 {
     delay();
-    bool res=writeDate("G28 WVZXY\n");
+    bool res=writeDate("G28 ZYXUVW\n");
     qDebug() << res;
     if(!_is_door_close)
         _is_door_close=true;
@@ -364,39 +364,48 @@ void serialport::close_open_door()
 {
 
     bool res;
+    res=writeDate("M42 P37 S255\n");
+    delay();
+    res=writeDate("M42 P37 S0\n");
 
-    if(_is_door_close)
-    {
-        res=writeDate("G01 V2 F"+QString::number(_v_axis_speed)+"\n");
-        _is_door_close=!_is_door_close;
-    }
-    else
-    {
-        res=writeDate("G01 V"+QString::number(_open_door_value)+" F"+QString::number(_v_axis_speed)+"\n");
-        _is_door_close=!_is_door_close;
-    }
-    qDebug() << res;
+//    bool res;
+//    if(_is_door_close)
+//    {
+//        res=writeDate("G01 V2 F"+QString::number(_v_axis_speed)+"\n");
+//        _is_door_close=!_is_door_close;
+//    }
+//    else
+//    {
+//        res=writeDate("G01 V"+QString::number(_open_door_value)+" F"+QString::number(_v_axis_speed)+"\n");
+//        _is_door_close=!_is_door_close;
+//    }
+//    qDebug() << res;
 }
 
 void serialport::in_out_workspace()
 {
     bool res;
+    res=writeDate("M42 P37 S255\n");
+    delay();
+    res=writeDate("M42 P37 S0\n");
 
-    if(_is_workspace_in)
-    {
-        res=writeDate("G01 V2 F"+QString::number(_v_axis_speed)+"\n");
-        _is_door_close=!_is_door_close;
-        res=writeDate("G01 W"+QString::number(_out_workspace_value)+" F"+QString::number(_w_axis_speed)+"\n");
-        _is_workspace_in=!_is_workspace_in;
-    }
-    else
-    {
-        res=writeDate("G28 W\n");
-        _is_workspace_in=!_is_workspace_in;
-        res=writeDate("G01 V"+QString::number(_open_door_value)+" F"+QString::number(_v_axis_speed)+"\n");
-        _is_door_close=!_is_door_close;
-    }
-    qDebug() << res;
+//    bool res;
+
+//    if(_is_workspace_in)
+//    {
+//        res=writeDate("G01 V2 F"+QString::number(_v_axis_speed)+"\n");
+//        _is_door_close=!_is_door_close;
+//        res=writeDate("G01 W"+QString::number(_out_workspace_value)+" F"+QString::number(_w_axis_speed)+"\n");
+//        _is_workspace_in=!_is_workspace_in;
+//    }
+//    else
+//    {
+//        res=writeDate("G28 W\n");
+//        _is_workspace_in=!_is_workspace_in;
+//        res=writeDate("G01 V"+QString::number(_open_door_value)+" F"+QString::number(_v_axis_speed)+"\n");
+//        _is_door_close=!_is_door_close;
+//    }
+//    qDebug() << res;
 }
 
 void serialport::set_moves_relative()
