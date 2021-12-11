@@ -18,6 +18,8 @@ class serialport : public QObject
     Q_PROPERTY(int sourceCurrentCol READ sourceCurrentCol WRITE setSourceCurrentCol NOTIFY sourceCurrentColChanged)
     Q_PROPERTY(int targetCurrentRow READ targetCurrentRow WRITE setTargetCurrentRow NOTIFY targetCurrentRowChanged)
     Q_PROPERTY(int targetCurrentCol READ targetCurrentCol WRITE setTargetCurrentCol NOTIFY targetCurrentColChanged)
+    Q_PROPERTY(bool isCurrentMoveHaveSource READ isCurrentMoveHaveSource WRITE setIsCurrentMoveHaveSource NOTIFY isCurrentMoveHaveSourceChanged)
+    Q_PROPERTY(bool isCurrentMoveHaveTarget READ isCurrentMoveHaveTarget WRITE setIsCurrentMoveHaveTarget NOTIFY isCurrentMoveHaveTargetChanged)
 
 
 private:
@@ -61,10 +63,12 @@ public:
     void generate_initial_gcodes();
     void generate_select_sampler_gcode(int sampler_type);
     void generate_pickup_sampler_routine_gcode();
-    void generate_pick_tip_gcode(int sampler_type,int count);
-    void generate_go_to_source_type1_gcode(int count,int start_row,int start_column,double source_liq_height,int sampler_type);
-    void generate_go_to_source_type2_gcode(int source_num,int sampler_type);
-    void generate_go_to_target_gcode(int count,int start_row,int start_column,int sampler_type);
+    void generate_pick_tip_gcode(int count);
+    void generate_go_to_source_type1_gcode(int count,int start_row,int start_column,double source_liq_height,double sampler_liq_volume);
+    void generate_go_to_source_type2_gcode(int source_num,double sampler_liq_volume);
+    void generate_go_to_source_out_gcode(double sampler_liq_volume);
+    void generate_go_to_target_type1_gcode(int count,int start_row,int start_column,double sampler_liq_volume);
+    void generate_go_to_target_out_gcode(double sampler_liq_volume);
     void generate_discharge_gcode();
     void generate_pick_down_sampler_gcode(int sampler_type);
     void generate_go_home_gcodes();
@@ -75,8 +79,10 @@ public:
     QList<QString> Final_Generated_Gcodes;
     QList<int> source_active_pos_rows;
     QList<int> source_active_pos_cols;
+    QList<bool> is_moves_have_source_status;
     QList<int> target_active_pos_rows;
     QList<int> target_active_pos_cols;
+    QList<bool> is_moves_have_target_status;
 
 signals:
     void serialPortsListChanged();
@@ -91,6 +97,9 @@ signals:
     void sourceCurrentColChanged();
     void targetCurrentRowChanged();
     void targetCurrentColChanged();
+    void isCurrentMoveHaveSourceChanged();
+    void isCurrentMoveHaveTargetChanged();
+
 
 public slots:
     int sourceCurrentRow();
@@ -101,6 +110,10 @@ public slots:
     void setTargetCurrentRow(int value);
     int targetCurrentCol();
     void setTargetCurrentCol(int value);
+    bool isCurrentMoveHaveSource();
+    void setIsCurrentMoveHaveSource(bool value);
+    bool isCurrentMoveHaveTarget();
+    void setIsCurrentMoveHaveTarget(bool value);
     void open_port();
     void close_open_door();
     void in_out_workspace();
@@ -111,9 +124,9 @@ public slots:
     bool writeAlgorithmDate();
     bool writeDate(QString val);
     void add_new_move(int source_type,int source_start_point_row_lbl,int source_start_point_col_lbl
-                      ,double source_liq_height,int source2_number
-                      ,int target_start_point_row_lbl,int target_start_point_col_lbl,int number_of_units
-                      ,int sampler_type);
+                      ,double source_liq_height,int source2_number,int target_type
+                      ,int target_start_point_row_lbl,int target_start_point_col_lbl
+                      ,int number_of_units,double sampler_liq_volume);
     void start_algorithm();
     void load_backend_params();
     void clear_moves();
@@ -122,6 +135,8 @@ public slots:
     void oneMoveDoneSlot();
     void stop_send_data();
     void home_all_axises();
+    void wash_reader_routine();
+    void start_demo_movement();
 
 private:
     bool _stop_send_data_flag;
@@ -219,6 +234,8 @@ private:
     int _source_current_col;
     int _target_current_row;
     int _target_current_col;
+    bool _is_current_move_have_source;
+    bool _is_current_move_have_target;
     int _move_counter;
 };
 

@@ -43,6 +43,42 @@ void serialport::home_all_axises()
         _is_door_close=true;
 }
 
+void serialport::wash_reader_routine()
+{
+    Final_Generated_Gcodes.clear();
+    QString fileName = "wash_reader_routine.txt";
+    QFile inputFile(fileName);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+        QTextStream in(&inputFile);
+        while (!in.atEnd())
+        {
+            QString line = in.readLine();
+            Final_Generated_Gcodes.append(line);
+        }
+        inputFile.close();
+        emit doWriteSerialData();
+    }
+}
+
+void serialport::start_demo_movement()
+{
+    Final_Generated_Gcodes.clear();
+    QString fileName = "demo_movement.txt";
+    QFile inputFile(fileName);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+        QTextStream in(&inputFile);
+        while (!in.atEnd())
+        {
+            QString line = in.readLine();
+            Final_Generated_Gcodes.append(line);
+        }
+        inputFile.close();
+        emit doWriteSerialData();
+    }
+}
+
 void serialport::load_backend_params()
 {
     bool ok = false;
@@ -389,17 +425,17 @@ void serialport::relative_move(int axis,double value)
     bool res=false;
     switch(axis)
     {
-        case 1:
-            res=writeDate("G01 X"+QString::number(value)+" F"+QString::number(_x_axis_speed)+"\n");
+    case 1:
+        res=writeDate("G01 X"+QString::number(value)+" F"+QString::number(_x_axis_speed)+"\n");
         break;
-        case 2:
-            res=writeDate("G01 Y"+QString::number(value)+" F"+QString::number(_y_axis_speed)+"\n");
+    case 2:
+        res=writeDate("G01 Y"+QString::number(value)+" F"+QString::number(_y_axis_speed)+"\n");
         break;
-        case 3:
-            res=writeDate("G01 Z"+QString::number(value)+" F"+QString::number(_z_axis_speed)+"\n");
+    case 3:
+        res=writeDate("G01 Z"+QString::number(value)+" F"+QString::number(_z_axis_speed)+"\n");
         break;
-        case 4:
-            res=writeDate("G01 U"+QString::number(value)+" F"+QString::number(_u_axis_speed)+"\n");
+    case 4:
+        res=writeDate("G01 U"+QString::number(value)+" F"+QString::number(_u_axis_speed)+"\n");
         break;
     }
     qDebug() << res;
@@ -420,17 +456,17 @@ void serialport::home_axis(int axis)
     bool res=false;
     switch(axis)
     {
-        case 1:
-            res=writeDate("G28 X\n");
+    case 1:
+        res=writeDate("G28 X\n");
         break;
-        case 2:
-            res=writeDate("G28 Y\n");
+    case 2:
+        res=writeDate("G28 Y\n");
         break;
-        case 3:
-            res=writeDate("G28 Z\n");
+    case 3:
+        res=writeDate("G28 Z\n");
         break;
-        case 4:
-            res=writeDate("G28 U\n");
+    case 4:
+        res=writeDate("G28 U\n");
         break;
     }
     qDebug() << res;
@@ -441,18 +477,18 @@ bool serialport::writeAlgorithmDate()
     bool res=false;
     for(int i=0;i<Final_Generated_Gcodes.length();i++)
     {
-//        if(_stop_send_data_flag)
-//        {
-//            emit finishSendData();
-//            break;
-//        }
-//        else
-//        {
-//            res=writeDate(Final_Generated_Gcodes.at(i));
-//            qDebug() << Final_Generated_Gcodes.at(i);
-//            qDebug() << res;
-//            delay();
-//        }
+        //        if(_stop_send_data_flag)
+        //        {
+        //            emit finishSendData();
+        //            break;
+        //        }
+        //        else
+        //        {
+        //            res=writeDate(Final_Generated_Gcodes.at(i));
+        //            qDebug() << Final_Generated_Gcodes.at(i);
+        //            qDebug() << res;
+        //            delay();
+        //        }
 
         //res=writeDate(Final_Generated_Gcodes.at(i));
         _serialport->write(Final_Generated_Gcodes.at(i).toUtf8());
@@ -462,6 +498,7 @@ bool serialport::writeAlgorithmDate()
         readSerialPort();
     }
     emit finishSendData();
+    return res;
 }
 
 bool serialport::writeDate(QString val)
@@ -479,17 +516,18 @@ bool serialport::writeDate(QString val)
     }
 }
 
-void serialport::add_new_move(int source_type, int source_start_point_row_lbl, int source_start_point_col_lbl,double source_liq_height,int source2_number, int target_start_point_row_lbl, int target_start_point_col_lbl, int number_of_units, int sampler_type)
+void serialport::add_new_move(int source_type, int source_start_point_row_lbl, int source_start_point_col_lbl,double source_liq_height,int source2_number,int target_type, int target_start_point_row_lbl, int target_start_point_col_lbl, int number_of_units,double sampler_liq_volume)
 {
     movement *new_movement = new movement(source_type,
                                           source_start_point_row_lbl,
                                           source_start_point_col_lbl,
                                           source_liq_height,
                                           source2_number,
+                                          target_type,
                                           target_start_point_row_lbl,
                                           target_start_point_col_lbl,
                                           number_of_units,
-                                          sampler_type);
+                                          sampler_liq_volume);
     movementList.push_back(new_movement);
 }
 
@@ -501,6 +539,8 @@ void serialport::clear_moves()
     source_active_pos_rows.clear();
     target_active_pos_cols.clear();
     target_active_pos_rows .clear();
+    is_moves_have_source_status.clear();
+    is_moves_have_target_status.clear();
     _move_counter=0;
     _step_counter=0;
 }
@@ -526,10 +566,26 @@ void serialport::sendDataDoneSlot()
 
 void serialport::oneMoveDoneSlot()
 {
-    _source_current_col=source_active_pos_cols.at(_move_counter);
-    _source_current_row=source_active_pos_rows.at(_move_counter);
-    _target_current_col=target_active_pos_cols.at(_move_counter);
-    _target_current_row=target_active_pos_rows.at(_move_counter);
+    if(is_moves_have_source_status.at(_move_counter))
+    {
+        _source_current_col=source_active_pos_cols.at(_move_counter);
+        _source_current_row=source_active_pos_rows.at(_move_counter);
+        _is_current_move_have_source=true;
+    }
+    else
+        _is_current_move_have_source=false;
+
+
+    if(is_moves_have_target_status.at(_move_counter))
+    {
+        _target_current_col=target_active_pos_cols.at(_move_counter);
+        _target_current_row=target_active_pos_rows.at(_move_counter);
+        _is_current_move_have_target=true;
+    }
+    else
+        _is_current_move_have_target=false;
+
+
     qDebug() << _source_current_col << _source_current_row << _target_current_col << _target_current_row;
     _move_counter++;
     emit finishOneMove();
@@ -560,25 +616,36 @@ void serialport::start_algorithm()
 
         for(int j=0;j<m->numbrerOfUnits();j++)
         {
-            // go to pick tip
-            generate_pick_tip_gcode(m->samplerType(),_tip_counter+j);
+            if(m->sourceType()==1||m->sourceType()==2)
+                // go to pick tip
+                generate_pick_tip_gcode(_tip_counter+j);
 
             if(m->sourceType()==1)
                 // go to source 1
-                generate_go_to_source_type1_gcode(j,m->sourceStartPointRow(),m->sourceStartPointCol(),m->sourceLiqHeight(),m->samplerType());
-            else
+                generate_go_to_source_type1_gcode(j,m->sourceStartPointRow(),m->sourceStartPointCol(),m->sourceLiqHeight(),m->samplerLiqVolume());
+            else if(m->sourceType()==2)
                 // go to source 2
-                generate_go_to_source_type2_gcode(m->source2Number(),m->samplerType());
+                generate_go_to_source_type2_gcode(m->source2Number(),m->samplerLiqVolume());
+            else
+                // source out
+                generate_go_to_source_out_gcode(m->samplerLiqVolume());
 
 
-            // go to target
-            generate_go_to_target_gcode(j,m->targetStartPointRow(),m->targetStartPointCol(),m->samplerType());
+            if(m->targetType()==1)
+                // go to target 1
+                generate_go_to_target_type1_gcode(j,m->targetStartPointRow(),m->targetStartPointCol(),m->samplerLiqVolume());
+            else
+                // target out
+                generate_go_to_target_out_gcode(m->samplerLiqVolume());
+
 
             // go to discharge
             generate_discharge_gcode();
 
         }
-        _tip_counter+=m->numbrerOfUnits();
+
+        if(m->sourceType()!=3)
+            _tip_counter+=m->numbrerOfUnits();
 
         // go to pick down sampler
         //generate_pick_down_sampler_gcode(m->samplerType());
@@ -625,51 +692,22 @@ void serialport::generate_pickup_sampler_routine_gcode()
     Final_Generated_Gcodes.append(_pick_sampler_routine);
 }
 
-void serialport::generate_pick_tip_gcode(int sampler_type, int count)
+void serialport::generate_pick_tip_gcode(int count)
 {
-    switch(sampler_type)
+    if(count%8!=0)
     {
-    case 1:
-        if(count%8!=0)
-        {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position-((count%8)*_tip_type1_x_distance))+" Y"+QString::number(_tip_type1_y_position+((count/8)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-        }
-        else
-        {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position)+" Y"+QString::number(_tip_type1_y_position+((count/8)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-        }
-        break;
-    case 2:
-        if(count%8!=0)
-        {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type2_x_position-((count%8)*_tip_type2_x_distance))+" Y"+QString::number(_tip_type2_y_position+((count/8)*_tip_type2_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-        }
-        else
-        {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type2_x_position)+" Y"+QString::number(_tip_type2_y_position+((count/8)*_tip_type2_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-        }
-        break;
-    case 3:
-        if(count%6!=0)
-        {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type3_x_position-((count%6)*_tip_type3_x_distance))+" Y"+QString::number(_tip_type3_y_position+((count/6)*_tip_type3_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-        }
-        else
-        {
-            Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type3_x_position)+" Y"+QString::number(_tip_type3_y_position+((count/6)*_tip_type3_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
-            Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-        }
-        break;
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position-((count%8)*_tip_type1_x_distance))+" Y"+QString::number(_tip_type1_y_position+((count/8)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+    }
+    else
+    {
+        Final_Generated_Gcodes.append("G01 X"+QString::number(_tip_type1_x_position)+" Y"+QString::number(_tip_type1_y_position+((count/8)*_tip_type1_y_distance))+" F"+QString::number(_y_axis_speed)+"\n");
+        Final_Generated_Gcodes.append("G01 Z"+QString::number(_tip_type1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
     }
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_z_axis_offset)+" F"+QString::number(_z_axis_speed)+"\n");
 }
 
-void serialport::generate_go_to_source_type1_gcode(int count, int start_row, int start_column,double source_liq_height,int sampler_type)
+void serialport::generate_go_to_source_type1_gcode(int count, int start_row, int start_column,double source_liq_height,double sampler_liq_volume)
 {
     if((count+start_column-1)%8!=0)
     {
@@ -693,41 +731,42 @@ void serialport::generate_go_to_source_type1_gcode(int count, int start_row, int
 
     }
 
-    switch(sampler_type)
-    {
-    case 1:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 2:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 3:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    }
+    //    switch(sampler_type)
+    //    {
+    //    case 1:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 2:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 3:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    }
 
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_source_z_max-source_liq_height)+" F"+QString::number(_z_axis_speed)+"\n");
     Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
-    switch(sampler_type)
-    {
-    case 1:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 2:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 3:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    }
+    //    switch(sampler_type)
+    //    {
+    //    case 1:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 2:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 3:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    }
 
 
     Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_z_axis_offset)+" F"+QString::number(_z_axis_speed)+"\n");
+    is_moves_have_source_status.append(true);
 }
 
-void serialport::generate_go_to_source_type2_gcode(int source_num,int sampler_type)
+void serialport::generate_go_to_source_type2_gcode(int source_num,double sampler_liq_volume)
 {
     switch(source_num)
     {
@@ -772,61 +811,69 @@ void serialport::generate_go_to_source_type2_gcode(int source_num,int sampler_ty
         break;
     }
 
-    switch(sampler_type)
-    {
-    case 1:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 2:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 3:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    }
+    //    switch(sampler_type)
+    //    {
+    //    case 1:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 2:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 3:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    }
 
     switch(source_num)
     {
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-            Final_Generated_Gcodes.append("G01 Z"+QString::number(_source2_type1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-            break;
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-            Final_Generated_Gcodes.append("G01 Z"+QString::number(_source2_type2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-            break;
-        case 13:
-            Final_Generated_Gcodes.append("G01 Z"+QString::number(_source2_type3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
-            break;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+        Final_Generated_Gcodes.append("G01 Z"+QString::number(_source2_type1_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+        break;
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+        Final_Generated_Gcodes.append("G01 Z"+QString::number(_source2_type2_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+        break;
+    case 13:
+        Final_Generated_Gcodes.append("G01 Z"+QString::number(_source2_type3_z_position)+" F"+QString::number(_z_axis_speed)+"\n");
+        break;
     }
     Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
-    switch(sampler_type)
-    {
-    case 1:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 2:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 3:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    }
+    //    switch(sampler_type)
+    //    {
+    //    case 1:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 2:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 3:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    }
     Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_z_axis_offset)+" F"+QString::number(_z_axis_speed)+"\n");
+
+    is_moves_have_source_status.append(true);
 }
 
-void serialport::generate_go_to_target_gcode(int count, int start_row, int start_column,int sampler_type)
+void serialport::generate_go_to_source_out_gcode(double sampler_liq_volume)
+{
+
+    is_moves_have_source_status.append(false);
+}
+
+void serialport::generate_go_to_target_type1_gcode(int count, int start_row, int start_column,double sampler_liq_volume)
 {
     if((count+start_column-1)%12!=0)
     {
@@ -850,34 +897,41 @@ void serialport::generate_go_to_target_gcode(int count, int start_row, int start
     }
     Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
 
-    switch(sampler_type)
-    {
-    case 1:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 2:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 3:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    }
+    //    switch(sampler_type)
+    //    {
+    //    case 1:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 2:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 3:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_press)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    }
 
     Final_Generated_Gcodes.append("G04 P"+QString::number(_dwell)+"\n");
     Final_Generated_Gcodes.append("G01 Z"+QString::number(_z_axis_offset)+" F"+QString::number(_z_axis_speed)+"\n");
 
-    switch(sampler_type)
-    {
-    case 1:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 2:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    case 3:
-        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
-        break;
-    }
+    //    switch(sampler_type)
+    //    {
+    //    case 1:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler1_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 2:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler2_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    case 3:
+    //        Final_Generated_Gcodes.append("G01 U"+QString::number(_sampler3_height_release)+" F"+QString::number(_u_axis_speed)+"\n");
+    //        break;
+    //    }
+
+    is_moves_have_target_status.append(true);
+}
+
+void serialport::generate_go_to_target_out_gcode(double sampler_liq_volume)
+{
+    is_moves_have_target_status.append(false);
 }
 
 void serialport::generate_discharge_gcode()
@@ -972,4 +1026,24 @@ int serialport::targetCurrentCol()
 void serialport::setTargetCurrentCol(int value)
 {
     _target_current_col=value;
+}
+
+bool serialport::isCurrentMoveHaveSource()
+{
+    return _is_current_move_have_source;
+}
+
+void serialport::setIsCurrentMoveHaveSource(bool value)
+{
+    _is_current_move_have_source=value;
+}
+
+bool serialport::isCurrentMoveHaveTarget()
+{
+    return _is_current_move_have_target;
+}
+
+void serialport::setIsCurrentMoveHaveTarget(bool value)
+{
+    _is_current_move_have_target=value;
 }

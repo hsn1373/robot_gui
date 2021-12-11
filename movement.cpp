@@ -6,8 +6,8 @@ movement::movement(QObject *parent) : QObject(parent)
 }
 
 movement::movement(int source_type,int source_start_point_row, int source_start_point_col,double source_liq_height,
-                   int source2_number,int target_start_point_row,int target_start_point_col,
-                   int numbrer_of_units, int sampler_type, QObject *parent)
+                   int source2_number,int target_type,int target_start_point_row,int target_start_point_col,
+                   int numbrer_of_units,double sampler_liq_volume, QObject *parent)
     : QObject(parent)
 {
     _source_type=source_type;
@@ -15,10 +15,11 @@ movement::movement(int source_type,int source_start_point_row, int source_start_
     _source_start_point_col=source_start_point_col;
     _source_liq_height=source_liq_height;
     _source2_number=source2_number;
+    _target_type=target_type;
     _target_start_point_row=target_start_point_row;
     _target_start_point_col=target_start_point_col;
     _numbrer_of_units=numbrer_of_units;
-    _sampler_type=sampler_type;
+    _sampler_liq_volume=sampler_liq_volume;
 }
 
 int movement::sourceType()
@@ -71,6 +72,16 @@ void movement::setSource2Number(int value)
     _source2_number=value;
 }
 
+int movement::targetType()
+{
+    return _target_type;
+}
+
+void movement::setTargetType(int value)
+{
+    _target_type=value;
+}
+
 int movement::targetStartPointRow()
 {
     return _target_start_point_row;
@@ -101,12 +112,12 @@ void movement::setNumbrerOfUnits(int value)
     _numbrer_of_units=value;
 }
 
-int movement::samplerType()
+double movement::samplerLiqVolume()
 {
-    return _sampler_type;
+    return _sampler_liq_volume;
 }
 
-void movement::setSamplerType(int value)
+void movement::setSamplerLiqVolume(double value)
 {
-    _sampler_type=value;
+    _sampler_liq_volume=value;
 }

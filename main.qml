@@ -81,7 +81,8 @@ Window {
             var current_row=serialPort.sourceCurrentRow
             var current_col=serialPort.sourceCurrentCol
 
-            SourceRowObjects[current_row].children[current_col].color=UIStyle.colorRed
+            if(serialPort.isCurrentMoveHaveSource)
+                SourceRowObjects[current_row].children[current_col].color=UIStyle.colorRed
 
             var TargetRowObjects=[]
             for(i=1;i<9;i++)
@@ -90,7 +91,8 @@ Window {
             current_row=serialPort.targetCurrentRow
             current_col=serialPort.targetCurrentCol
 
-            TargetRowObjects[current_row].children[current_col].color=UIStyle.colorRed
+            if(serialPort.isCurrentMoveHaveTarget)
+                TargetRowObjects[current_row].children[current_col].color=UIStyle.colorRed
 
         }
 
@@ -271,7 +273,7 @@ Window {
                     width: parent.width * 1/3 - 6
                     height: parent.height
                     text: "Wash Reader"
-                    enabled: false
+                    //enabled: false
                     highlighted: UIStyle.darkTheme
                     font.pixelSize: UIStyle.fontSize_Big
                     background:  Rectangle {
@@ -280,8 +282,9 @@ Window {
                     }
                     onClicked:
                     {
-                        main_menu.visible=false
-                        washReader_grid.visible=true
+                        //                        main_menu.visible=false
+                        //                        washReader_grid.visible=true
+                        serialPort.wash_reader_routine()
                     }
                     onHoveredChanged: btnWashReaderPage.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                 }
@@ -1479,7 +1482,8 @@ Window {
                                 btnSetMovesAddNewMove.enabled=false
                                 btnSetMovesClearMoves.enabled=false
                                 btnSetMovesStartMove.enabled=false
-                                serialPort.start_algorithm()
+                                //serialPort.start_algorithm()
+                                serialPort.start_demo_movement()
                             }
                             onHoveredChanged: btnSetMovesStartMove.background.color=hovered?UIStyle.buttonHovered:UIStyle.themeBlue
                         }
@@ -2542,10 +2546,16 @@ Window {
                                     border.color: UIStyle.borderGrey
                                 }
 
-                                model: ["Src-1","Src-2"]
+                                model: ["Src-1","Src-2","Src-Out"]
                                 onActivated: {
                                     this.displayText = this.currentText
-                                    if(cmb_addNewMove_Source_sourceType.currentIndex==1)
+                                    if(cmb_addNewMove_Source_sourceType.currentIndex==0)
+                                    {
+                                        sourceType1_row1.visible=true
+                                        sourceType1_row2.visible=true
+                                        sourceType2_row1.visible=false
+                                    }
+                                    else if(cmb_addNewMove_Source_sourceType.currentIndex==1)
                                     {
                                         sourceType1_row1.visible=false
                                         sourceType1_row2.visible=false
@@ -2553,8 +2563,8 @@ Window {
                                     }
                                     else
                                     {
-                                        sourceType1_row1.visible=true
-                                        sourceType1_row2.visible=true
+                                        sourceType1_row1.visible=false
+                                        sourceType1_row2.visible=false
                                         sourceType2_row1.visible=false
                                     }
                                 }
@@ -2756,7 +2766,7 @@ Window {
                     {
                         width: parent.width
                         height: parent.height
-                        rows: 5
+                        rows: 7
 
                         Label
                         {
@@ -2776,8 +2786,65 @@ Window {
                             color: "transparent"
                         }
 
+
                         Row
                         {
+                            width: parent.width
+                            height: parent.height * 2/10
+
+                            Label
+                            {
+                                width: parent.width * 2/5
+                                height: parent.height
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                text: "<b> Type </b>"
+                                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                                font.family: UIStyle.fontName
+                            }
+
+                            ComboBox
+                            {
+                                id: cmb_addNewMove_Target_targetType
+                                width: parent.width * 3/5
+                                height: parent.height
+                                Material.accent: Material.primary
+                                Material.theme: Material.Light
+                                font.pointSize:UIStyle.fontSize
+                                font.family:UIStyle.fontName
+                                background: Rectangle{
+                                    width: parent.width
+                                    height: parent.height
+                                    color: UIStyle.comboBackground
+                                    border.width: 0.5
+                                    border.color: UIStyle.borderGrey
+                                }
+
+                                model: ["trg-1","trg-Out"]
+                                onActivated: {
+                                    this.displayText = this.currentText
+                                    if(cmb_addNewMove_Target_targetType.currentIndex==0)
+                                    {
+                                        targetType1_row1.visible=true
+                                    }
+                                    else
+                                    {
+                                        targetType1_row1.visible=false
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle
+                        {
+                            width: parent.width
+                            height: parent.height * 1/10
+                            color: "transparent"
+                        }
+
+                        Row
+                        {
+                            id: targetType1_row1
                             width: parent.width
                             height: parent.height * 2/10
 
@@ -2894,7 +2961,7 @@ Window {
                             height: parent.height * 1/7
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
-                            text: "<b> Sampler Type </b>"
+                            text: "<b> Sampler </b>"
                             Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
                             font.family: UIStyle.fontName
                         }
@@ -2904,26 +2971,63 @@ Window {
                             height: parent.height * 1/7
                             color: "transparent"
                         }
-                        ComboBox
+                        Row
                         {
-                            id: cmb_addNewMove_Sampler_Type
                             width: parent.width
                             height: parent.height * 1/7
-                            Material.accent: Material.primary
-                            Material.theme: Material.Light
-                            font.pointSize:UIStyle.fontSize
-                            font.family:UIStyle.fontName
-                            background: Rectangle{
-                                width: parent.width
+
+                            Label
+                            {
+                                width: parent.width * 2/5
                                 height: parent.height
-                                color: UIStyle.comboBackground
-                                border.width: 0.5
-                                border.color: UIStyle.borderGrey
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                text: "<b>Liq Vol</b>"
+                                Material.theme: UIStyle.darkTheme ? Material.Dark : Material.Light
+                                font.family: UIStyle.fontName
                             }
 
-                            model: ["Sampler-1","Sampler-2","Sampler-3"]
-                            onActivated: {
-                                this.displayText = this.currentText
+                            Column
+                            {
+                                width: parent.width * 3/5
+                                height: parent.height
+                                Rectangle
+                                {
+                                    width: parent.width
+                                    height: parent.height * 1/4
+                                    color: "transparent"
+                                }
+                                SpinBox {
+                                    id: txt_addNewMove_Sampler_liq_vol
+                                    from: 0
+                                    value: 1000
+                                    to: 100 * 1000
+                                    stepSize: 10
+                                    width: parent.width
+                                    height: parent.height * 1/2
+
+                                    property int decimals: 2
+                                    property real realValue: value / 100
+
+                                    validator: DoubleValidator {
+                                        bottom: Math.min(txt_addNewMove_Sampler_liq_vol.from, txt_addNewMove_Sampler_liq_vol.to)
+                                        top:  Math.max(txt_addNewMove_Sampler_liq_vol.from, txt_addNewMove_Sampler_liq_vol.to)
+                                    }
+
+                                    textFromValue: function(value, locale) {
+                                        return Number(value / 100).toLocaleString(locale, 'f', txt_addNewMove_Sampler_liq_vol.decimals)
+                                    }
+
+                                    valueFromText: function(text, locale) {
+                                        return Number.fromLocaleString(locale, text) * 100
+                                    }
+                                }
+                                Rectangle
+                                {
+                                    width: parent.width
+                                    height: parent.height * 1/4
+                                    color: "transparent"
+                                }
                             }
                         }
                     }
@@ -2967,10 +3071,11 @@ Window {
                                                 cmb_addNewMove_Source_Start_column.currentIndex+1,
                                                 txt_addNewMove_Source_liq_height.realValue,
                                                 cmb_addNewMove_Source2_source_number.currentIndex+1,
+                                                cmb_addNewMove_Target_targetType.currentIndex+1,
                                                 cmb_addNewMove_Target_Start_row.currentIndex+1,
                                                 cmb_addNewMove_Target_Start_column.currentIndex+1,
                                                 txt_addNewMove_Target_number_of_units.value,
-                                                cmb_addNewMove_Sampler_Type.currentIndex+1)
+                                                txt_addNewMove_Sampler_liq_vol.realValue)
 
                         //********************************************************************
                         // change dots colors of source
@@ -2995,7 +3100,7 @@ Window {
                                 }
                             }
                         }
-                        else
+                        else if(cmb_addNewMove_Source_sourceType.currentIndex==1)
                         {// Type 2 Source
                             switch(cmb_addNewMove_Source2_source_number.currentIndex)
                             {
@@ -3046,21 +3151,24 @@ Window {
 
                         //********************************************************************
                         // change dots colors of target
-                        var TargetRowObjects=[]
-                        for(i=1;i<9;i++)
-                            TargetRowObjects.push(target_dots_grid.children[i])
-
-                        current_row=cmb_addNewMove_Target_Start_row.currentIndex
-                        current_col=cmb_addNewMove_Target_Start_column.currentIndex
-                        for(j=1;j<=txt_addNewMove_Target_number_of_units.value;j++)
+                        if(cmb_addNewMove_Target_targetType.currentIndex==0)
                         {
-                            TargetRowObjects[current_row].children[current_col].color=UIStyle.colorQtAuxGreen2
-                            current_col++
+                            var TargetRowObjects=[]
+                            for(i=1;i<9;i++)
+                                TargetRowObjects.push(target_dots_grid.children[i])
 
-                            if((j+cmb_addNewMove_Target_Start_column.currentIndex)%12==0)
+                            current_row=cmb_addNewMove_Target_Start_row.currentIndex
+                            current_col=cmb_addNewMove_Target_Start_column.currentIndex
+                            for(j=1;j<=txt_addNewMove_Target_number_of_units.value;j++)
                             {
-                                current_row++
-                                current_col=0
+                                TargetRowObjects[current_row].children[current_col].color=UIStyle.colorQtAuxGreen2
+                                current_col++
+
+                                if((j+cmb_addNewMove_Target_Start_column.currentIndex)%12==0)
+                                {
+                                    current_row++
+                                    current_col=0
+                                }
                             }
                         }
                         //********************************************************************
