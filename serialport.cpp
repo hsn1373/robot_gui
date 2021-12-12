@@ -54,7 +54,7 @@ void serialport::wash_reader_routine()
         while (!in.atEnd())
         {
             QString line = in.readLine();
-            Final_Generated_Gcodes.append(line);
+            Final_Generated_Gcodes.append(line+"\n");
         }
         inputFile.close();
         emit doWriteSerialData();
@@ -72,7 +72,7 @@ void serialport::start_demo_movement()
         while (!in.atEnd())
         {
             QString line = in.readLine();
-            Final_Generated_Gcodes.append(line);
+            Final_Generated_Gcodes.append(line+"\n");
         }
         inputFile.close();
         emit doWriteSerialData();
